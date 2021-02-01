@@ -1,18 +1,22 @@
-var mysql      = require('mysql');
-var express        = require('express');
+var mysql = require('mysql');
+var express = require('express');
 var uuid = require('uuid');
+var account = require('./account');
+var session = require('./session')
+
 const app = express()
 const port = 8146
 
 
-var connection = mysql.createConnection({
+global.connection = mysql.createConnection({
   host     : '192.168.2.146',
   user     : 'phpmyadmin',
-  password : '*******',
+  password : '*********+',
   database: "ledtable"
 });
 
-connection.connect();
+
+global.connection.connect();
 
 
 
@@ -30,18 +34,28 @@ app.get('/signup',(req,res)=> {
   if(error) {
     res.send(error);
   }else{
-    
+    account.checkAndCreateUser(req.query.name.toString(),req.query.email.toString(),res,req);
 
-const user = uuid.v4();
-    var sql = `INSERT INTO account (uuid,email,passwort,name) VALUES ('${user}', '${req.query.email.toString()}','${req.query.password.toString()}','${req.query.name.toString()}')`;
-    connection.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log("1 record inserted");
-    });
-
-  res.send("success "+startsession(user))
   }
 })
+
+app.get('/signin',(req,res)=>{
+
+  if(req.query.eorn&&req.query.password) {
+    account.login(req.query.eorn.toString(),req.query.password.toString(),res);
+  }else{
+    res.send('{\"error\":\"please provide name or email and password!\",\"errorcode\":\"replace\"}');
+
+  }
+}) 
+
+
+app.get('/resetTimeout',(req,res)=> {
+
+  session.reactivateSession(req.query.session);
+  res.send("done");
+
+});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
@@ -65,20 +79,8 @@ function validateSignUp(name, email, password) {
 
             if(name.toString().trim().length>=3) {
 
-                if(checkUserNameExisting(name)) {
-                  return '{\"error\":\"Username already exists\",\"errorcode\":\"replace\"}'
-
-                }else{
-                  if(checkUserEmailExisting(email)) {
-                    return '{\"error\":\"Email already exists\",\"errorcode\":\"replace\"}'
-
-                  }else{
+        
                     return undefined;
-
-                  }
-
-                }
-
 
             } else{
              return '{\"error\":\"Username must contain at least 3 Characters\",\"errorcode\":\"replace\"}'
@@ -100,54 +102,5 @@ function validateSignUp(name, email, password) {
 }
 }
 
-function startsession(user) {
-
-  const session = uuid.v4();
-
-  var sql = `INSERT INTO session (uuid,user,timeout) VALUES ('${session}', '${user}','${new Date().getTime() + 600000}')`;
-  connection.query(sql, function (err, result) {
-    if (err) throw err;
-  });
-
-return session;
-
-}
-
-//TODO 
-
-function checkUserNameExisting(name) {
-
-  var sql = `SELECT * FROM account WHERE name = '${name.toString()}';`;
-  connection.query(sql, function (err, result) {
-    if (err) throw err;
-    
-    if(result[0]) {
-      console.log(result[0]);
-
-      return true
-    }else{
-      return false
-    }
-
-  });
-
-return false;
-}
 
 
-function checkUserEmailExisting(email) {
-
-  var sql = `SELECT 1 FROM account WHERE email = '${email.toString()}';`;
-  connection.query(sql, function (err, result) {
-    if (err) throw err;
-    
-    if(result[0]) {
-      return true
-    }else{
-      return false
-    }
-
-  });
-
-return false;
-}
