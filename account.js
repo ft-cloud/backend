@@ -1,5 +1,6 @@
 var uuid = require('uuid');
 var session = require('./session');
+var passwordHash = require('password-hash');
 
 var account = {
 
@@ -26,7 +27,7 @@ var account = {
 
       login: function(nameOrEmail,password,res) {
 
-        var sql = `SELECT * FROM account WHERE (name='${nameOrEmail}' OR email='${nameOrEmail}') AND password='${password}'`;
+        var sql = `SELECT * FROM account WHERE (name='${nameOrEmail}' OR email='${nameOrEmail}') AND password='${passwordHash.generate(password)}'`;
         global.connection.query(sql, function (err, result) {
             console.log(result);
             if(result&&result[0]) {
@@ -98,7 +99,7 @@ module.exports = account;
   
   function createUser(req,res) {
     const user = uuid.v4();
-      var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.query.email.toString()}','${req.query.password.toString()}','${req.query.name.toString()}')`;
+      var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.query.email.toString()}','${passwordHash.generate(req.query.password.toString())}','${req.query.name.toString()}')`;
       global.connection.query(sql, function (err, result) {
         if (err) throw err;
       });
