@@ -1,6 +1,7 @@
 var uuid = require('uuid');
 var session = require('./session');
-var passwordHash = require('password-hash');
+const crypto = require('crypto')
+const hashingSecret = "LEDWAll";
 
 var account = {
 
@@ -27,7 +28,9 @@ var account = {
 
       login: function(nameOrEmail,password,res) {
 
-        var sql = `SELECT * FROM account WHERE (name='${nameOrEmail}' OR email='${nameOrEmail}') AND password='${passwordHash.generate(password)}'`;
+        const pw_hash = crypto.createHmac('sha256', hashingSecret).update(password).digest('hex');
+
+        var sql = `SELECT * FROM account WHERE (name='${nameOrEmail}' OR email='${nameOrEmail}') AND password='${pw_hash}'`;
         global.connection.query(sql, function (err, result) {
             console.log(result);
             if(result&&result[0]) {
@@ -98,8 +101,10 @@ module.exports = account;
   }
   
   function createUser(req,res) {
+    const pw_hash = crypto.createHmac('sha256', hashingSecret).update(req.query.password.toString()).digest('hex');
+
     const user = uuid.v4();
-      var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.query.email.toString()}','${passwordHash.generate(req.query.password.toString())}','${req.query.name.toString()}')`;
+      var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.query.email.toString()}','${pw_hash}','${req.query.name.toString()}')`;
       global.connection.query(sql, function (err, result) {
         if (err) throw err;
       });
