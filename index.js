@@ -3,7 +3,7 @@ var express = require('express');
 var uuid = require('uuid');
 var account = require('./account');
 var session = require('./session')
-
+var cors = require('cors');
 const app = express()
 const port = 8146
 
@@ -11,14 +11,14 @@ const port = 8146
 global.connection = mysql.createConnection({
   host     : '192.168.2.146',
   user     : 'phpmyadmin',
-  password : '********',
+  password : '********++',
   database: "ledtable"
 });
 
 
 global.connection.connect();
 
-
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('LEDWall API V1.0')
