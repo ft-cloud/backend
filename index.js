@@ -9,9 +9,9 @@ const port = 8146
 
 
 global.connection = mysql.createConnection({
-  host     : '192.168.2.146',
+  host     : '192.168.178.100',
   user     : 'phpmyadmin',
-  password : '********++',
+  password : 'Raspiserve',
   database: "ledtable"
 });
 
@@ -37,6 +37,9 @@ app.get('/signup',(req,res)=> {
     account.checkAndCreateUser(req.query.name.toString(),req.query.email.toString(),res,req);
 
   }
+})
+app.get('/signin',(req,res)=> {
+res.send("da kanst du lange warten bis du rein kommst");
 })
 
 app.get('/signin',(req,res)=>{
