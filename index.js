@@ -55,6 +55,19 @@ app.get('/auth/signout',(req,res)=> {
 
 })
 
+app.get('auth/validateSession',(req,res) => {
+
+
+  if(req.query.session) {
+    session.validateSession(req.query.session.toString(),res);
+  }else{
+    res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\"}');
+  }
+
+
+
+});
+
 
 app.get('/resetTimeout',(req,res)=> {
 

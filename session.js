@@ -55,6 +55,26 @@ var session ={
 
 
 
+      },
+
+      validateSession: function(session,res) {
+
+        var sql = `SELECT FROM session WHERE uuid = '${session.toString()}';`;
+
+        global.connection.query(sql, function (err, result) {
+          if(result&&result[0]) {
+           res.send("{\"result\": \"yes\"}")
+      
+          }else{
+      
+            res.send("{\"result\": \"no\"}")
+      
+          }
+        
+      
+        });
+
+
       }
 
       
