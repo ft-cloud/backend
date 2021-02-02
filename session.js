@@ -45,7 +45,7 @@ var session ={
 
       deleteSession: function(session,res) {
 
-        var sql = `delete from session where uuid=${session}`;
+        var sql = `delete from session where uuid=${session}`; //TODO doesnt work
 
         global.connection.query(sql, function (err, result) {
           if (err) throw err;
