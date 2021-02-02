@@ -1,0 +1,6 @@
+Providing Error 001
+No Valid Input 002
+Invalid Credentials 003
+Username already exists 004
+Email already exists 005
+Invalid Session 006 -> Sesson Expiered?

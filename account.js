@@ -13,7 +13,7 @@ var account = {
           if(result[0]) {
             console.log(result[0]);
       
-            res.send('{\"error\":\"Username already exists\",\"errorcode\":\"replace\"}');
+            res.send('{\"error\":\"Username already exists\",\"errorcode\":\"004\"}');
       
           }else{
       
@@ -35,10 +35,10 @@ var account = {
             console.log(result);
             if(result&&result[0]) {
              
-               res.send( session.startsession(result[0].uuid));
+               res.send(`{\"info\":\"loged in\",\"session\":\"${session.startsession(result[0].uuid)}\"}`)
         
             }else{
-                res.send('{\"error\":\"email or password incorrect\",\"errorcode\":\"replace\"}');
+                res.send('{\"error\":\"email or password incorrect\",\"errorcode\":\"003\"}');
 
         
             }
@@ -88,7 +88,7 @@ module.exports = account;
       if (err) throw err;
       
       if(result[0]) {
-        res.send('{\"error\":\"Email already exists\",\"errorcode\":\"replace\"}');
+        res.send('{\"error\":\"Email already exists\",\"errorcode\":\"005\"}');
   
       }else{
         createUser(req,res);
@@ -108,6 +108,6 @@ module.exports = account;
       global.connection.query(sql, function (err, result) {
         if (err) throw err;
       });
-  
-    res.send("success "+session.startsession(user))
+      
+    res.send(`{\"info\":\"Account creating done\",\"session\":\"${session.startsession(user)}\"}`)
   }

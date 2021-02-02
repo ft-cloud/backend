@@ -9,9 +9,9 @@ const port = 8146
 
 
 global.connection = mysql.createConnection({
-  host     : '192.168.178.100',
+  host     : '192.168.2.146',
   user     : 'phpmyadmin',
-  password : 'Raspiserve',
+  password : '*******+',
   database: "ledtable"
 });
 
@@ -24,11 +24,9 @@ app.get('/', (req, res) => {
   res.send('LEDWall API V1.0')
 })
 
-app.get('/auth', (req,res) => {
-  res.send('please provide credentials')
-})
 
-app.get('/signup',(req,res)=> {
+
+app.get('/auth/signup',(req,res)=> {
 
   const error = validateSignUp(req.query.name,req.query.email,req.query.password)
   if(error) {
@@ -38,19 +36,24 @@ app.get('/signup',(req,res)=> {
 
   }
 })
-app.get('/signin',(req,res)=> {
-res.send("da kanst du lange warten bis du rein kommst");
-})
 
-app.get('/signin',(req,res)=>{
+app.get('/auth/signin',(req,res)=>{
 
   if(req.query.eorn&&req.query.password) {
     account.login(req.query.eorn.toString(),req.query.password.toString(),res);
   }else{
-    res.send('{\"error\":\"please provide name or email and password!\",\"errorcode\":\"replace\"}');
+    res.send('{\"error\":\"please provide name or email and password!\",\"errorcode\":\"001\"}');
 
   }
 }) 
+app.get('/auth/signout',(req,res)=> {
+  if(req.query.session) {
+    session.deleteSession(req.query.session.toString(),res);
+  }else{
+    res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\"}');
+  }
+
+})
 
 
 app.get('/resetTimeout',(req,res)=> {
@@ -86,22 +89,22 @@ function validateSignUp(name, email, password) {
                     return undefined;
 
             } else{
-             return '{\"error\":\"Username must contain at least 3 Characters\",\"errorcode\":\"replace\"}'
+             return '{\"error\":\"Username must contain at least 3 Characters\",\"errorcode\":\"002\"}'
 
             }
 
 
         }else{
-          return '{\"error\":\"No valid email!\",\"errorcode\":\"replace\"}'
+          return '{\"error\":\"No valid email!\",\"errorcode\":\"002\"}'
         }
 
     }else{
-      return'{\"error\":\"No valid inputs!\",\"errorcode\":\"replace\"}'
+      return'{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}'
 
     }
 
 }else{
-  return'{\"error\":\"please provide name, password and email!\",\"errorcode\":\"replace\"}'
+  return'{\"error\":\"please provide name, password and email!\",\"errorcode\":\"001\"}'
 }
 }
 
