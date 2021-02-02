@@ -55,7 +55,7 @@ app.get('/auth/signout',(req,res)=> {
 
 })
 
-app.get('auth/validateSession',(req,res) => {
+app.get('/auth/validateSession',(req,res) => {
 
 
   if(req.query.session) {
