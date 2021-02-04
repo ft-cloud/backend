@@ -25,10 +25,13 @@ var session ={
 
       getUserUUID: function(session,callback) {
 
-        var sql = `SELECT 'UUID' FROM session WHERE uuid = '${session.toString()}';`;
+
+          console.log("input: "+ session)
+        var sql = `SELECT user FROM session WHERE uuid='${session}';`;
         global.connection.query(sql, function (err, result) {
+          
           if(result&&result[0]) {
-            callback(result[0])
+            callback(result[0].user)
       
           }else{
       
@@ -76,7 +79,29 @@ var session ={
         });
 
 
+      },
+
+      validateSession2: function(session,callback) {
+
+        var sql = `SELECT 'UUID' FROM session WHERE uuid = '${session.toString()}';`;
+
+        global.connection.query(sql, function (err, result) {
+          console.log(result);
+          if(result&&result[0]) {
+           callback(true)
+      
+          }else{
+      
+            callback(false)
+      
+          }
+        
+      
+        });
+
+
       }
+
 
       
 

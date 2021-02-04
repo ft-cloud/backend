@@ -3,15 +3,16 @@ var express = require('express');
 var uuid = require('uuid');
 var account = require('./account');
 var session = require('./session')
+var apps = require('./app')
 var cors = require('cors');
 const app = express()
 const port = 8146
 
 
 global.connection = mysql.createConnection({
-  host     : '192.168.2.146',
+  host     : '192.168.178.100',
   user     : 'phpmyadmin',
-  password : '*******+',
+  password : 'Raspiserve',
   database: "ledtable"
 });
 
@@ -63,9 +64,6 @@ app.get('/auth/validateSession',(req,res) => {
   }else{
     res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\"}');
   }
-
-
-
 });
 
 
@@ -79,6 +77,40 @@ app.get('/resetTimeout',(req,res)=> {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
+
+app.get('/app/listinstalled', (req,res)=>{
+  if(req.query.session) {
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          session.getUserUUID(req.query.session.toString(),(uuid)=> {
+
+            if(uuid) {
+             apps.listIstalledApps(uuid, (InstalledApps) => {
+
+              if(InstalledApps) {
+                res.send(`{"list": ${InstalledApps}}`);
+
+              }else{
+                return'{\"error\":\"No valid UUID!\",\"errorcode\":\"006\"}' 
+
+              }
+
+             })
+            }else{
+              return'{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' 
+            }
+          })
+
+        }else{
+          return'{\"error\":\"No valid session!\",\"errorcode\":\"006\"}'
+      
+        }
+    }) 
+  }else{
+    return'{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}'
+  }
+});
 
 
 
