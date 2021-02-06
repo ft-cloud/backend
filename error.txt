@@ -4,3 +4,5 @@ Invalid Credentials 003
 Username already exists 004
 Email already exists 005
 Invalid Session 006 -> Sesson Expiered?
+Invalid Score 007 
+No read Permission 008

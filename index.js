@@ -12,7 +12,6 @@ const port = 8146
 global.connection = mysql.createConnection({
   host     : '192.168.178.100',
   user     : 'phpmyadmin',
-  password : 'Raspiserve',
   database: "ledtable"
 });
 

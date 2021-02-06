@@ -5,6 +5,25 @@ var uuid = require('uuid');
 var counter =0;
 module.exports = {
 
+
+    getUserAppConfig: function(scoreuuid,callback) {
+
+        var sql = `SELECT data FROM score WHERE uuid = '${scoreuuid}'`
+        global.connection.query(sql, function(err, result){
+
+            if(result&&result[0]&&result[0].data){
+
+                callback(result[0].data)
+
+            }else{
+                callback(undefined);
+            }
+
+        })
+    
+
+      
+    },
     getWriteScores: function(appid,useruuid, callback){
         var sql = `SELECT scoreWritePermission FROM account WHERE uuid = '${useruuid}';`
         global.connection.query(sql, function(err, result){
@@ -69,6 +88,30 @@ module.exports = {
     });
     },
 
+    hasReadPermission: function(scoreuuid, useruuid,callback) {
+        
+        var sql_getWritePermissionapps=`SELECT scoreWritePermission FROM account WHERE uuid = '${useruuid.toString()}';`;
+        global.connection.query(sql_getWritePermissionapps, function(err, resultWrite){
+
+
+        var sql_getWritePermissionapps=`SELECT scoreReadPermission FROM account WHERE uuid = '${useruuid.toString()}';`;
+        global.connection.query(sql_getWritePermissionapps, function(err, resultRead){
+        callback( JSON.parse(resultWrite[0].scoreWritePermission).includes(scoreuuid)||JSON.parse(resultRead[0].scoreReadPermission).includes(scoreuuid));
+
+        })
+    })
+
+    },
+    hasWritePermission: function(scoreuuid, useruuid,callback) {
+
+        var sql_getWritePermissionapps=`SELECT scoreWritePermission FROM account WHERE uuid = '${useruuid.toString()}';`;
+        global.connection.query(sql_getWritePermissionapps, function(err, result){
+            if (err) throw err;
+        callback(  JSON.parse(result[0].scoreWritePermission).includes(scoreuuid));
+        })
+
+    },
+
   
     addScore: function(useruuid, name, Appuuid, callback){
         var scoreuuid=uuid.v4();
@@ -81,8 +124,7 @@ module.exports = {
         global.connection.query(sql_getWritePermissionapps, function(err, result){
             if (err) throw err;
             old_scoreWritePermission=result[0];
-            console.log("old: ");
-            console.log(old_scoreWritePermission.scoreWritePermission);
+
 
          const jsonArray =   JSON.parse(old_scoreWritePermission.scoreWritePermission)
          jsonArray.push(scoreuuid); 
