@@ -92,26 +92,53 @@ app.get('/app/listinstalled', (req,res)=>{
                 res.send(`{"list": ${InstalledApps}}`);
 
               }else{
-                return'{\"error\":\"No valid UUID!\",\"errorcode\":\"006\"}' 
+                res.send('{\"error\":\"No valid Session!\",\"errorcode\":\"006\"}' )
 
               }
 
              })
             }else{
-              return'{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' 
+              res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
             }
           })
 
         }else{
-          return'{\"error\":\"No valid session!\",\"errorcode\":\"006\"}'
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
       
         }
     }) 
   }else{
-    return'{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}'
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
   }
 });
 
+app.get('/app/addScore', (req,res)=>{
+  if(req.query.session && req.query.name && req.query.appuuid) {
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+            apps.addScore(uuid, req.query.name, req.query.appuuid, (r) => {
+              res.send(`{"success":"true"}`);
+            });
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
+});
 
 
 

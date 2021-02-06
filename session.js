@@ -83,7 +83,7 @@ var session ={
 
       validateSession2: function(session,callback) {
 
-        var sql = `SELECT 'UUID' FROM session WHERE uuid = '${session.toString()}';`;
+        var sql = `SELECT * FROM session WHERE uuid = '${session.toString()}';`;
 
         global.connection.query(sql, function (err, result) {
           console.log(result);
