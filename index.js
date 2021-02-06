@@ -10,8 +10,9 @@ const port = 8146
 
 
 global.connection = mysql.createConnection({
-  host     : '192.168.178.100',
+  host     : '192.168.2.146',
   user     : 'phpmyadmin',
+  password : '*****',
   database: "ledtable"
 });
 
@@ -139,6 +140,54 @@ app.get('/app/addScore', (req,res)=>{
   }
 });
 
+app.get('/app/getScoreConfig', (req, res)=>{
+
+  if(req.query.session && req.query.scoreuuid){
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+             apps.hasReadPermission(req.query.scoreuuid.toString(),uuid,(check) =>{
+
+              if(check) {
+
+                apps.getUserAppConfig(req.query.scoreuuid.toString(),(userconfig)=>{
+
+                  if(userconfig!=undefined) {
+                    res.send(`{"success":true,"config",${JSON.stringify(userconfig)}}`)
+                  }else{
+                    res.send('{\"error\":\"No valid score!\",\"errorcode\":\"007\"}' )
+                  }
+    
+                 });
+
+              }else{
+                
+                res.send('{\"error\":\"No Read Permission!\",\"errorcode\":\"008\"}' )
+
+              }
+
+             })
+            
+
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
+});
+
 app.get('/app/getAppScores', (req, res) =>{
   if(req.query.session && req.query.appuuid){
     session.validateSession2(req.query.session.toString(),(isValid) => {
@@ -181,6 +230,8 @@ app.get('/app/getAppScores', (req, res) =>{
   
   }
 });
+
+
 
 
 
