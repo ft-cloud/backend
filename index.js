@@ -113,7 +113,7 @@ app.get('/app/listinstalled', (req,res)=>{
 });
 
 app.get('/app/addScore', (req,res)=>{
-  if(req.query.session && req.query.name && req.query.appuuid) {
+  if(req.query.session && req.query.name && req.query.appuuid&&req.query.name.length>3) {
     session.validateSession2(req.query.session.toString(),(isValid) => {
       if(isValid) {
         session.reactivateSession(req.query.session);
@@ -121,7 +121,7 @@ app.get('/app/addScore', (req,res)=>{
           if(uuid) {
 
             apps.addScore(uuid, req.query.name, req.query.appuuid, (r) => {
-              res.send(`{"success":"true"}`);
+              res.send(`{"success":true,"uuid":"${r}"}`);
             });
             
 
@@ -137,6 +137,49 @@ app.get('/app/addScore', (req,res)=>{
   }) 
   }else{
     res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
+});
+
+app.get('/app/getAppScores', (req, res) =>{
+  if(req.query.session && req.query.appuuid){
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+            apps.getWriteScores(req.query.appuuid,uuid, (writeScore) => {
+                apps.getReadScores(req.query.appuuid,uuid, (readScore)=> {
+
+                  const writeObject = writeScore;
+                  const readObject = readScore;
+                  const tempOBJ = {
+                    write: writeObject,
+                    read: readObject
+                  }
+
+                  res.send(JSON.stringify(tempOBJ));
+
+
+                });
+
+            });
+
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  
   }
 });
 
