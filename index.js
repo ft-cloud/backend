@@ -12,7 +12,7 @@ const port = 8146
 global.connection = mysql.createConnection({
   host     : '192.168.2.146',
   user     : 'phpmyadmin',
-  password : 'P******',
+  password : '*****++',
   database: "ledtable"
 });
 
@@ -233,7 +233,9 @@ app.get('/app/getAppScores', (req, res) =>{
 
 
 app.get('/app/saveAppScore',(req,res)=>{
+
 if(req.query.session && req.query.scoreuuid && req.query.params){
+  console.log(req.query.params)
     session.validateSession2(req.query.session.toString(),(isValid) => {
       if(isValid) {
         session.reactivateSession(req.query.session);
@@ -241,11 +243,8 @@ if(req.query.session && req.query.scoreuuid && req.query.params){
           if(uuid) {
 
          apps.hasWritePermission(req.query.scoreuuid,uuid,(permission)=>{
-
           if(permission) {
-
             apps.updateScore(req.query.scoreuuid,req.query.params,() =>{
-              
               res.send('{\"success\":\"Updated Settings\"}' )
             })
 

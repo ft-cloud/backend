@@ -141,9 +141,11 @@ module.exports = {
     },
 
     updateScore: function(scoreuuid, data, callback){
-        var sql = `UPDATE score SET config = '${data}' WHERE UUID = '${scoreuuid}'`
+        console.log(data)
+        var sql = `UPDATE score SET data = '${data}' WHERE UUID = '${scoreuuid}'`
          global.connection.query(sql, function (err, result) {
-
+            console.log(err);
+            console.log(result);
             callback();
 
 
