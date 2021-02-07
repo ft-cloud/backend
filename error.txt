@@ -6,3 +6,4 @@ Email already exists 005
 Invalid Session 006 -> Sesson Expiered?
 Invalid Score 007 
 No read Permission 008
+No write Permission 009
