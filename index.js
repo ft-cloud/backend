@@ -12,7 +12,7 @@ const port = 8146
 global.connection = mysql.createConnection({
   host     : '192.168.2.146',
   user     : 'phpmyadmin',
-  password : '*****',
+  password : '******',
   database: "ledtable"
 });
 
@@ -156,7 +156,7 @@ app.get('/app/getScoreConfig', (req, res)=>{
                 apps.getUserAppConfig(req.query.scoreuuid.toString(),(userconfig)=>{
 
                   if(userconfig!=undefined) {
-                    res.send(`{"success":true,"config",${JSON.stringify(userconfig)}}`)
+                    res.send(`{"success":true,"config":${userconfig}}`)
                   }else{
                     res.send('{\"error\":\"No valid score!\",\"errorcode\":\"007\"}' )
                   }
@@ -230,6 +230,50 @@ app.get('/app/getAppScores', (req, res) =>{
   
   }
 });
+
+
+app.get('/app/saveAppScore',(req,res)=>{
+if(req.query.session && req.query.scoreuuid && req.query.params){
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+         apps.hasWritePermission(scoreuuid,uuid,(permission)=>{
+
+          if(permission) {
+
+            apps.updateScore()
+
+
+          }else{
+
+            res.send('{\"error\":\"No write Permission!\",\"errorcode\":\"009\"}' )
+         
+          }
+
+
+
+         })
+
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  
+  }
+})
 
 
 
