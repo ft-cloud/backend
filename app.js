@@ -138,9 +138,17 @@ module.exports = {
         });
         });
     });
-    }
+    },
 
-    ,
+    updateScore: function(scoreuuid, data, callback){
+        var sql = `UPDATE score SET config = '${data}' WHERE UUID = '${scoreuuid}'`
+         global.connection.query(sql, function (err, result) {
+
+            callback();
+
+
+         })
+    },
     listIstalledApps: function(user,callback) {
 
         account.getAccountByUUID(user, (user) => {
