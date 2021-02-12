@@ -11,11 +11,12 @@ const port = 8146
 
 
 global.connection = mysql.createConnection({
-  host     : '192.168.178.100',
-  user     : 'phpmyadmin',
-  password : 'Raspiserve',
+  host     : '172.17.0.2',
+  user     : 'root',
+  password : 'Pi-Server',
   database: "ledtable"
 });
+
 
 
 global.connection.connect();
@@ -325,6 +326,92 @@ app.get('/app/deleteAppScore',(req,res)=>{
     
     }
   })
+ const registrationCodes = [];
+app.get('/device/getRegistrationCode',(req,res) => {
+    var regCode;
+    while(true) {
+        const random = Math.floor(Math.random() * 8191); //Because this is in bin 13 length
+        if (!registrationCodes.includes(random)) {
+            regCode = random;
+            registrationCodes.push(regCode)
+            break;
+        }
+
+    }
+
+    res.send(regCode+"");
+
+   })
+
+const waitForRegistrationDevices = [];
+
+app.get('/device/waitForRegistration',(req,res)=>{
+
+    if(req.query.regCode) {
+
+        if(registrationCodes.includes(Number.parseInt(req.query.regCode))) {
+            waitForRegistrationDevices[req.query.regCode.toString()] = res;
+
+        }else {
+            res.send('{\"error\":\"No valid registration code!\",\"errorcode\":\"010\"}')
+
+
+        }
+
+    }else{
+
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+
+})
+
+
+app.get('/device/registerByCode',(req,res)=>{
+
+    if(req.query.regCode&&req.query.session) {
+
+
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+            if(isValid) {
+                session.reactivateSession(req.query.session);
+                session.getUserUUID(req.query.session.toString(),(uuid)=> {
+                    if (uuid) {
+
+                        if (registrationCodes.includes(Number.parseInt(req.query.regCode))) {
+                            session.generateAPIKey(uuid,(apiKey)=>{
+
+                                waitForRegistrationDevices[req.query.regCode.toString()].send(`{\"success\":\"${apiKey}\"}`);
+                                res.send('{\"success\":\"Registration done\"}')
+
+                                const indexOfCode = registrationCodes.indexOf(Number.parseInt(req.query.regCode));
+                                if (indexOfCode > -1) registrationCodes.splice(indexOfCode, 1);
+
+                                const indexOfRequest = waitForRegistrationDevices.indexOf(waitForRegistrationDevices[req.query.regCode.toString()]);
+                                if (indexOfRequest > -1) registrationCodes.splice(indexOfRequest, 1);
+
+
+                            })
+
+                        } else {
+                            res.send('{\"error\":\"No valid registration code!\",\"errorcode\":\"010\"}')
+                        }
+
+                    }else{
+                        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+
+                    }
+                })
+            }else{
+                res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+            }
+        })
+
+    }else{
+
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+
+})
 
 
 

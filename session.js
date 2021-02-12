@@ -1,5 +1,15 @@
 var uuid = require('uuid');
+const generateAPIKey = function generateAPIToken(user,callback) {
 
+    const session = uuid.v4();
+
+    var sql = `INSERT INTO session (uuid,user,timeout,token) VALUES ('${session}', '${user}', DATE_ADD(now(),interval 10 minute),1)`;
+    global.connection.query(sql, function (err, result) {
+        if (err) throw err;
+        callback(session)
+    });
+
+}
 var session ={
     startsession: function (user) {
 
@@ -100,7 +110,8 @@ var session ={
         });
 
 
-      }
+      },
+    generateAPIKey: generateAPIKey
 
 
       
@@ -109,8 +120,10 @@ var session ={
 
 module.exports = session;
 
+
+
  function deleteSessions() {
-    var sql = `delete from session where timeout < DATE_SUB(now(),interval 10 minute)`;
+    var sql = `delete from session where (timeout < DATE_SUB(now(),interval 10 minute) and token = 0)`;
     global.connection.query(sql, function (err, result) {
       if (err) throw err;
     });
