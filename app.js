@@ -196,7 +196,7 @@ module.exports = {
 
          })
     },
-    listIstalledApps: function(user,callback) {
+    listInstalledApps: function(user, callback) {
 
         account.getAccountByUUID(user, (user) => {
 

@@ -69,12 +69,38 @@ app.get('/auth/validateSession',(req,res) => {
 });
 
 
-app.get('/resetTimeout',(req,res)=> {
+app.get('/account/info',(req,res) => {
 
-  session.reactivateSession(req.query.session);
-  res.send("done");
+    if(req.query.session) {
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+            if(isValid) {
+                session.reactivateSession(req.query.session);
+                session.getUserUUID(req.query.session.toString(),(uuid)=> {
 
-});
+                    if(uuid) {
+                       account.getAccountByUUID(uuid,(account)=> {
+                           if(account) {
+                               res.send(JSON.stringify(account));
+                           }else{
+                               res.send();
+                           }
+                       })
+                    }else{
+                        res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+                    }
+                })
+
+            }else{
+                res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+
+            }
+        })
+    }else{
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+
+})
+
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
@@ -88,7 +114,7 @@ app.get('/app/listinstalled', (req,res)=>{
           session.getUserUUID(req.query.session.toString(),(uuid)=> {
 
             if(uuid) {
-             apps.listIstalledApps(uuid, (InstalledApps) => {
+             apps.listInstalledApps(uuid, (InstalledApps) => {
 
               if(InstalledApps) {
                 res.send(`{"list": ${InstalledApps}}`);
