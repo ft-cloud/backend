@@ -9,3 +9,4 @@ CMD [ "node", "index.js" ]
 # sudo docker run -d -p 8146:8146 --name ledwall-server ledwall-server
 
 # sudo docker build --tag ledwall-server .
+
