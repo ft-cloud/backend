@@ -201,15 +201,18 @@ module.exports = {
         account.getAccountByUUID(user, (user) => {
 
             if(user==undefined) {
-                callback(undefined);
+                callback(undefined)
+                return;
             }
-
             var rawinstalledapps=JSON.parse(user.installedApps);
             var output = [];
             counter = 0;
-            console.log("installedapps: ");
+            console.log(rawinstalledapps.installedApps)
+            if(rawinstalledapps.installedApps===undefined||!rawinstalledapps) {
+                callback(undefined)
+                return;
+            }
             for(var i=0;i<rawinstalledapps.installedApps.length; i++){
-                console.log(rawinstalledapps.installedApps[i]);
                 var sql = `SELECT * FROM application WHERE uuid = '${rawinstalledapps.installedApps[i]}';`;
                 global.connection.query(sql, function (err, result) {
 
