@@ -123,7 +123,7 @@ module.exports = session;
 
 
  function deleteSessions() {
-    var sql = `delete from session where (timeout < DATE_SUB(now(),interval 10 minute) and token = 0)`;
+    var sql = `delete from session where (timeout < DATE_SUB(now(),interval 10 minute) and (token = 0))`;
     global.connection.query(sql, function (err, result) {
       if (err) throw err;
     });
