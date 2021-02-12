@@ -5,6 +5,7 @@ var account = require('./account');
 var session = require('./session')
 var apps = require('./app')
 var cors = require('cors');
+const { deleteScore } = require('./app');
 const app = express()
 const port = 8146
 
@@ -206,6 +207,8 @@ app.get('/app/getAppScores', (req, res) =>{
                     read: readObject
                   }
 
+                  apps.deleteScoresEntry(uuid);
+                  
                   res.send(JSON.stringify(tempOBJ));
 
 
@@ -276,6 +279,52 @@ if(req.query.session && req.query.scoreuuid && req.query.params){
   
   }
 })
+
+
+app.get('/app/deleteAppScore',(req,res)=>{
+
+  if(req.query.session && req.query.scoreuuid){
+    console.log(req.query.params)
+      session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          session.getUserUUID(req.query.session.toString(),(uuid)=> {
+            if(uuid) {
+  
+           apps.hasWritePermission(req.query.scoreuuid,uuid,(permission)=>{
+            if(permission) {
+              apps.deleteScore(req.query.scoreuuid,() =>{
+                res.send('{\"success\":\"Delete Settings\"}' )
+              })
+  
+  
+            }else{
+  
+              res.send('{\"error\":\"No write Permission!\",\"errorcode\":\"009\"}' )
+           
+            }
+  
+  
+  
+           })
+  
+              
+  
+            }else{
+              res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+            }
+          })
+  
+        }else{
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+      
+        }
+    }) 
+    }else{
+      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    
+    }
+  })
 
 
 

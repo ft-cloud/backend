@@ -1,7 +1,7 @@
 const account = require('./account')
 const apps = require('./app.js')
 var uuid = require('uuid');
-
+var currentWriteDelete;
 var counter =0;
 module.exports = {
 
@@ -24,12 +24,29 @@ module.exports = {
 
       
     },
+
+
+    deleteScoresEntry: function(useruuid, callback){
+        var sql = `SELECT scoreWritePermission, scoreReadPermission FROM account WHERE uuid = '${useruuid}';`
+        global.connection.query(sql, function(err, result){
+            if(err) throw err;
+            console.log("result: ");
+            console.log(result);
+            var datatata=JSON.parse(result[0].scoreWritePermission);
+            for(var i=0;i<datatata.length; i++){
+                console.log(datatata[i]);
+            }
+        });
+      },
+
+
+    
     getWriteScores: function(appid,useruuid, callback){
         var sql = `SELECT scoreWritePermission FROM account WHERE uuid = '${useruuid}';`
         global.connection.query(sql, function(err, result){
             if (err) throw err;
-            console.log("result: ");
-            console.log(JSON.parse(result[0].scoreWritePermission));
+
+            currentWriteDelete =JSON.parse(result[0].scoreWritePermission)
 
             if(JSON.parse(result[0].scoreWritePermission).length==0) {
             callback([]);
@@ -40,8 +57,22 @@ module.exports = {
                     getScoreObject(appid,JSON.parse(result[0].scoreWritePermission)[i],(r)=>{
                             
                         counter++;
-                        if(r!=undefined)
+                        if(r!=undefined) {
                         return_result.push(r);
+                        }else{
+
+                          var sql = `SELECT uuid FROM score WHERE uuid= '${appid}';`;
+                          global.connection.query(sql, function(err, result){
+                            if (err) throw err;
+                            
+                            if(!result.uuid) {
+                           
+
+                            }
+
+                          });
+
+                        }
                         if(counter==JSON.parse(result[0].scoreWritePermission).length) {
 
                             callback(return_result);
@@ -71,8 +102,11 @@ module.exports = {
                         getScoreObject(appid,JSON.parse(result[0].scoreReadPermission)[i],(r)=>{
                                 
                             counter++;
-                            if(r!=undefined)
+                            if(r!=undefined) {
                             return_result.push(r);
+                            }else{
+                                removeReadScoreEntry(result[0].scoreReadPermission,useruuid,JSON.parse(result[0].scoreReadPermission)[i]);
+                            }
                             if(counter==JSON.parse(result[0].scoreReadPermission).length) {
     
                                 callback(return_result);
@@ -151,6 +185,17 @@ module.exports = {
 
          })
     },
+
+    deleteScore: function(scoreuuid, callback){
+        var sql = `DELETE FROM score WHERE UUID = '${scoreuuid}'`
+         global.connection.query(sql, function (err, result) {
+            console.log(err);
+            console.log(result);
+            callback();
+
+
+         })
+    },
     listIstalledApps: function(user,callback) {
 
         account.getAccountByUUID(user, (user) => {
@@ -196,6 +241,7 @@ module.exports = {
 }
 
 
+
  function getScoreObject(appid,uuid,callback) {
 
     var sql = `SELECT * FROM score WHERE uuid = '${uuid}' AND app = '${appid}';`
@@ -207,4 +253,35 @@ module.exports = {
 });
 
 
+}
+
+
+
+
+function removeWriteScoreEntry(writescores,useruuid,uuid) {
+    const jsonArray = JSON.parse(writescores)
+
+    const index = jsonArray.indexOf(uuid);
+    if (index > -1) {
+        jsonArray.splice(index, 1);
+    }
+
+   var sql_write=`UPDATE account SET scoreWritePermission = '${JSON.stringify(jsonArray)}' WHERE uuid = '${useruuid}'`;
+   global.connection.query(sql_write, function(err, result){
+
+   })
+}
+
+function removeReadScoreEntry(readscores,useruuid,uuid) {
+    const jsonArray = JSON.parse(readscores)
+
+    const index = jsonArray.indexOf(uuid);
+    if (index > -1) {
+        jsonArray.splice(index, 1);
+    }
+
+   var sql_write=`UPDATE account SET scoreReadPermission = '${JSON.stringify(jsonArray)}' WHERE uuid = '${useruuid}'`;
+   global.connection.query(sql_write, function(err, result){
+
+   })
 }
