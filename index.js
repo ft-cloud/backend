@@ -8,6 +8,7 @@ var cors = require('cors');
 const { deleteScore } = require('./app');
 const app = express()
 const port = 8146
+var device = require('./device')
 
 
 global.connection = mysql.createConnection({
@@ -373,10 +374,16 @@ const waitForRegistrationDevices = [];
 
 app.get('/device/waitForRegistration',(req,res)=>{
 
-    if(req.query.regCode) {
+    if(req.query.regCode&&req.query.deviceUUID&&req.query.deviceName) {
 
         if(registrationCodes.includes(Number.parseInt(req.query.regCode))) {
-            waitForRegistrationDevices[req.query.regCode.toString()] = res;
+            const obj = {
+                uuid: req.query.deviceUUID.toString(),
+                res: res,
+                name: req.query.deviceName
+            }
+
+            waitForRegistrationDevices[req.query.regCode.toString()] = obj;
 
         }else {
             res.send('{\"error\":\"No valid registration code!\",\"errorcode\":\"010\"}')
@@ -404,16 +411,38 @@ app.get('/device/registerByCode',(req,res)=>{
                     if (uuid) {
 
                         if (registrationCodes.includes(Number.parseInt(req.query.regCode))) {
-                            session.generateAPIKey(uuid,(apiKey)=>{
+                            session.generateAPIKey(uuid, waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),(apiKey)=>{
 
-                                waitForRegistrationDevices[req.query.regCode.toString()].send(`{\"success\":\"${apiKey}\"}`);
-                                res.send('{\"success\":\"Registration done\"}')
+                                waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{\"success\":\"${apiKey}\"}`);
+                                //Create Devices in Database
+                                device.createDeviceEntry(waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),waitForRegistrationDevices[req.query.regCode.toString()].name.toString(),(AddUuid)=>{
+                                    //Get User Devices
+                                    device.getUserDevices(uuid,(userDevices)=>{
+                                    userDevices.push(AddUuid)
+                                        //Store User Device
+                                        device.storeUserDevices(JSON.stringify(userDevices),uuid,()=>{
 
-                                const indexOfCode = registrationCodes.indexOf(Number.parseInt(req.query.regCode));
-                                if (indexOfCode > -1) registrationCodes.splice(indexOfCode, 1);
+                                            //Answer Request
+                                            res.send('{\"success\":\"Registration done\"}')
 
-                                const indexOfRequest = waitForRegistrationDevices.indexOf(waitForRegistrationDevices[req.query.regCode.toString()]);
-                                if (indexOfRequest > -1) registrationCodes.splice(indexOfRequest, 1);
+
+                                            //Remove Temp vars
+                                            const indexOfCode = registrationCodes.indexOf(Number.parseInt(req.query.regCode));
+                                            if (indexOfCode > -1) registrationCodes.splice(indexOfCode, 1);
+
+                                            const indexOfRequest = waitForRegistrationDevices.indexOf(waitForRegistrationDevices[req.query.regCode.toString()]);
+                                            if (indexOfRequest > -1) registrationCodes.splice(indexOfRequest, 1);
+
+
+                                        })
+
+
+                                    });
+
+                                })
+
+
+
 
 
                             })

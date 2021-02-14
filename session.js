@@ -1,9 +1,9 @@
 var uuid = require('uuid');
-const generateAPIKey = function generateAPIToken(user,callback) {
+const generateAPIKey = function generateAPIToken(user,usedBy,callback) {
 
     const session = uuid.v4();
 
-    var sql = `INSERT INTO session (uuid,user,timeout,token) VALUES ('${session}', '${user}', DATE_ADD(now(),interval 10 minute),1)`;
+    var sql = `INSERT INTO session (uuid,user,timeout,token,usedBy) VALUES ('${session}', '${user}', DATE_ADD(now(),interval 10 minute),1,'${usedBy}')`;
     global.connection.query(sql, function (err, result) {
         if (err) throw err;
         callback(session)
