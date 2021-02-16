@@ -3,13 +3,14 @@ var session = require('./session');
 const crypto = require('crypto')
 const hashingSecret = "LEDWAll";
 
+
 var account = {
 
 
     checkAndCreateUser: function (name,email,res,req) {
 
-        var sql = `SELECT * FROM account WHERE name = '${name.toString()}';`;
-        global.connection.query(sql, function (err, result) {
+        var sql = `SELECT * FROM account WHERE name = ?;`;
+        global.connection.query(sql, [name.toString()],function (err, result) {
           if(result[0]) {
             console.log(result[0]);
       
@@ -30,8 +31,8 @@ var account = {
 
         const pw_hash = crypto.createHmac('sha256', hashingSecret).update(password).digest('hex');
 
-        var sql = `SELECT * FROM account WHERE (name='${nameOrEmail}' OR email='${nameOrEmail}') AND password='${pw_hash}'`;
-        global.connection.query(sql, function (err, result) {
+        var sql = `SELECT * FROM account WHERE (name=? OR email=?) AND password=?`;
+        global.connection.query(sql,[nameOrEmail,nameOrEmail,pw_hash], function (err, result) {
             console.log(result);
             if(result&&result[0]) {
              
@@ -53,8 +54,8 @@ var account = {
 
       getAccountByUUID: function(uuid,callback) {
         console.log(uuid);
-        var sql = `SELECT * FROM account WHERE uuid = '${uuid.toString()}';`;
-        global.connection.query(sql, function (err, result) {
+        var sql = `SELECT * FROM account WHERE uuid = ?;`;
+        global.connection.query(sql, [uuid.toString()],function (err, result) {
 
           if(result&&result[0]) {
             callback(result[0])

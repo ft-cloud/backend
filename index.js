@@ -512,8 +512,47 @@ app.get('/app/remove',(req,res)=>{
         session.getUserUUID(req.query.session.toString(),(uuid)=> {
           if(uuid) {
 
-            apps.removeApp(uuid, req.query.appuuid, () => {
+            apps.removeApp(uuid, req.query.appuuid, (success) => {
+              if(success) {
               res.send(`{"success":true}`);
+              }else{
+                res.send(`{"success":false}`);
+              }
+            });
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
+
+}),
+
+
+app.get('/app/removeReadScore',(req,res)=>{
+ 
+  if(req.query.session  && req.query.scoreuuid) {
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+            apps.removeReadScore(uuid, req.query.scoreuuid, (success) => {
+              if(success) {
+              res.send(`{"success":true}`);
+              }else{
+                res.send(`{"success":false}`);
+              }
             });
             
 
@@ -532,6 +571,7 @@ app.get('/app/remove',(req,res)=>{
   }
 
 })
+
 
 
 
