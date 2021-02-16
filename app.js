@@ -226,7 +226,7 @@ module.exports = {
                          tempObject["config"] = JSON.parse(result[0].config);
                          tempObject["info"] = JSON.parse(result[0].info);
                          output.push(tempObject);
-                        counter++;
+                         counter++;
                         if(counter==(rawinstalledapps.installedApps.length)) {
                             callback(JSON.stringify(output));
                         }
@@ -239,6 +239,59 @@ module.exports = {
            
         })
 
+    },
+
+    installApp: function(useruuid, appuuid, callback){
+
+        var old_installedApps;
+        var sql_getInstalledApps=`SELECT installedApps FROM account WHERE uuid = '${useruuid.toString()}';`;
+        global.connection.query(sql_getInstalledApps, function(err, result){
+            if (err) throw err;
+            old_installedApps=result[0];
+
+
+         const jsonArray =   JSON.parse(old_installedApps.installedApps)
+         jsonArray.installedApps.push(appuuid); 
+
+        var sql_write=`UPDATE account SET installedApps = '${JSON.stringify(jsonArray)}' WHERE uuid = '${useruuid}'`;
+        global.connection.query(sql_write, function(err, result){
+        
+        callback();
+
+        
+        });
+        });
+ 
+    },
+
+
+    removeApp: function(useruuid, appuuid, callback){
+
+        var old_installedApps;
+        var sql_getInstalledApps=`SELECT installedApps FROM account WHERE uuid = '${useruuid.toString()}';`;
+        global.connection.query(sql_getInstalledApps, function(err, result){
+            if (err) throw err;
+            old_installedApps=result[0];
+
+
+         const jsonArray =   JSON.parse(old_installedApps.installedApps)
+
+         const index = jsonArray.installedApps.indexOf(appuuid);
+         if (index > -1) {
+            jsonArray.installedApps.splice(index, 1);
+         }
+
+         
+
+        var sql_write=`UPDATE account SET installedApps = '${JSON.stringify(jsonArray)}' WHERE uuid = '${useruuid}'`;
+        global.connection.query(sql_write, function(err, result){
+        
+        callback();
+
+        
+        });
+        });
+ 
     }
 
 

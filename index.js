@@ -14,7 +14,7 @@ var device = require('./device')
 global.connection = mysql.createConnection({
   host     : '172.17.0.2',
   user     : 'root',
-  password : '',
+  password : 'LEDWall$246#',
   database: "ledtable"
 });
 
@@ -353,6 +353,9 @@ app.get('/app/deleteAppScore',(req,res)=>{
     
     }
   })
+
+
+
  const registrationCodes = [];
 app.get('/device/getRegistrationCode',(req,res) => {
     var regCode;
@@ -413,7 +416,7 @@ app.get('/device/registerByCode',(req,res)=>{
                         if (registrationCodes.includes(Number.parseInt(req.query.regCode))) {
                             session.generateAPIKey(uuid, waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),(apiKey)=>{
 
-                                waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{\"success\":\"${apiKey}\"}`);
+                                waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{"success":"true","apiKey":"${apiKey}"}`);
                                 //Create Devices in Database
                                 device.createDeviceEntry(waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),waitForRegistrationDevices[req.query.regCode.toString()].name.toString(),(AddUuid)=>{
                                     //Get User Devices
@@ -465,6 +468,68 @@ app.get('/device/registerByCode',(req,res)=>{
 
         res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
     }
+
+})
+
+
+app.get('/app/install',(req,res)=>{
+ 
+  if(req.query.session  && req.query.appuuid) {
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+            apps.installApp(uuid, req.query.appuuid, () => {
+              res.send(`{"success":true}`);
+            });
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
+
+})
+
+
+app.get('/app/remove',(req,res)=>{
+ 
+  if(req.query.session  && req.query.appuuid) {
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+            apps.removeApp(uuid, req.query.appuuid, () => {
+              res.send(`{"success":true}`);
+            });
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
 
 })
 
