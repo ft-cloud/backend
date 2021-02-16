@@ -14,7 +14,7 @@ var device = require('./device')
 global.connection = mysql.createConnection({
   host     : '172.17.0.2',
   user     : 'root',
-  password : 'Pi-Server',
+  password : '',
   database: "ledtable"
 });
 

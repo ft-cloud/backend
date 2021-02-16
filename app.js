@@ -58,6 +58,7 @@ module.exports = {
                             
                         counter++;
                         if(r!=undefined) {
+                        r.readonly = false;
                         return_result.push(r);
                         }else{
 
@@ -103,6 +104,7 @@ module.exports = {
                                 
                             counter++;
                             if(r!=undefined) {
+                                r.readonly = true;
                             return_result.push(r);
                             }else{
                                 removeReadScoreEntry(result[0].scoreReadPermission,useruuid,JSON.parse(result[0].scoreReadPermission)[i]);
