@@ -27,18 +27,7 @@ module.exports = {
     },
 
 
-    deleteScoresEntry: function(useruuid, callback){
-        var sql = `SELECT scoreWritePermission, scoreReadPermission FROM account WHERE uuid = ?;`
-        global.connection.query(sql, [useruuid],function(err, result){
-            if(err) throw err;
-            console.log("result: ");
-            console.log(result);
-            var datatata=JSON.parse(result[0].scoreWritePermission);
-            for(var i=0;i<datatata.length; i++){
-                console.log(datatata[i]);
-            }
-        });
-      },
+    
 
 
     

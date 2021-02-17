@@ -6,7 +6,7 @@ var device = {
    createDeviceEntry: function(deviceUUID,name, callback) {
        if(!deviceUUID) callback(undefined);
        const uuidGen = uuid.v4();
-        var sql = `INSERT INTO deviceData (uuid,name,data,deviceUUID) VALUES (?, ?,'',?)`;
+        var sql = `INSERT INTO deviceData (uuid,name,config,deviceUUID) VALUES (?, ?,'{}',?)`;
 
        global.connection.query(sql,[uuidGen,name,deviceUUID], function (err, result) {
            if (err) throw err;
@@ -67,6 +67,17 @@ var device = {
             console.log(err);
             console.log(result);
             callback();
+
+         })
+    },
+
+    deleteScore: function(deviceuuid, callback){
+        var sql = `DELETE FROM deviceData WHERE UUID = ?`
+         global.connection.query(sql,[deviceuuid], function (err, result) {
+            console.log(err);
+            console.log(result);
+            callback();
+
 
          })
     },

@@ -235,7 +235,6 @@ app.get('/app/getAppScores', (req, res) =>{
                     read: readObject
                   }
 
-                  apps.deleteScoresEntry(uuid);
                   
                   res.send(JSON.stringify(tempOBJ));
 
@@ -737,9 +736,19 @@ app.get('/device/deleteDevice',(req,res)=>{
           session.reactivateSession(req.query.session);
           session.getUserUUID(req.query.session.toString(),(uuid)=> {
             if(uuid) {
+              device.getUserDevices(uuid,(data)=>{
+                if(data.indexOf(req.query.deviceuuid)!=-1) {
+                  device.deleteScore(req.query.deviceuuid,()=>{
+                    res.send('{\"success\":\"true\"}' )
+                  })
 
-                res.send('{\"success\":\"Not implemented yet\"}' )
-              
+                }else{
+                  res.send('{\"error\":\"No write Permission!\",\"errorcode\":\"009\"}' )
+
+                }
+
+              })
+
               
   
             }else{
