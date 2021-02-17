@@ -6,9 +6,9 @@ var device = {
    createDeviceEntry: function(deviceUUID,name, callback) {
        if(!deviceUUID) callback(undefined);
        const uuidGen = uuid.v4();
-        var sql = `INSERT INTO deviceData (uuid,name,data) VALUES (?, ?,'')`;
+        var sql = `INSERT INTO deviceData (uuid,name,data,deviceUUID) VALUES (?, ?,'',?)`;
 
-       global.connection.query(sql,[uuidGen,name], function (err, result) {
+       global.connection.query(sql,[uuidGen,name,deviceUUID], function (err, result) {
            if (err) throw err;
 
            callback(uuidGen);
@@ -38,6 +38,66 @@ var device = {
             callback();
         });
 
+    },
+
+    
+
+    listAll: function(callback) {
+
+        var sql = `SELECT * FROM device`;
+
+        global.connection.query(sql, function (err, result) {
+            if (err) throw err;
+
+            callback(result);
+        });
+
+
+    },
+
+
+    listSpecificDevice: function(uuid,device,callback) {
+            var sql = `SELECT accessibleDevices FROM account WHERE uuid = ?;`
+            global.connection.query(sql, [uuid],function(err, result){
+                if (err) throw err;
+                console.log(JSON.parse(result[0].accessibleDevices));
+                
+    
+                if(JSON.parse(result[0].accessibleDevices).length==0) {
+    
+                    callback([]);
+                    }else{
+    
+                        var counter = 0;
+                        var return_result = [];
+                        for(var i=0;i<JSON.parse(result[0].accessibleDevices).length;i++) {
+                            getDevice(JSON.parse(result[0].accessibleDevices)[i],(r)=>{
+                                    
+                                if(r!=undefined&&r.deviceUUID===device) {
+                                return_result.push(r);
+                                }else{
+                                    //if(r.deviceUUID===device)
+                                    //removeReadScoreEntry(result[0].accessibleDevices,useruuid,JSON.parse(result[0].accessibleDevices)[counter]);
+                                    //TODO remove this
+                                }
+    
+                                counter++;
+    
+                                if(counter==JSON.parse(result[0].accessibleDevices).length) {
+                                    callback(return_result);
+                                }
+        
+                            })
+                        } 
+                        
+                    }
+    
+    
+    
+        });
+        
+
+
     }
 
 
@@ -46,3 +106,15 @@ var device = {
 
 
 module.exports = device;
+
+
+function getDevice(deviceID,callback) {
+
+    var sql = `SELECT * FROM deviceData WHERE uuid = ?;`
+    global.connection.query(sql, [deviceID],function(err, result){
+        if (err) throw err;
+        callback(result[0]);
+});
+
+
+}

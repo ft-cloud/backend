@@ -328,6 +328,37 @@ module.exports = {
  
     },
 
+    removeWriteScore: function(useruuid, scoreuuid, callback){
+
+        var old_scores;
+        var sql_getWriteScores=`SELECT scoreWritePermission FROM account WHERE uuid = ?;`;
+        global.connection.query(sql_getWriteScores,[useruuid.toString()], function(err, result){
+            if (err) throw err;
+            old_scores=result[0];
+
+
+         const jsonArray =   JSON.parse(old_scores.scoreWritePermission)
+
+         const index = jsonArray.indexOf(scoreuuid);
+         if (index > -1) {
+            jsonArray.splice(index, 1);
+         }else{
+             callback(false)
+         }
+
+         
+
+        var sql_write=`UPDATE account SET scoreWritePermission = ? WHERE uuid = ?`;
+        global.connection.query(sql_write,[JSON.stringify(jsonArray),useruuid], function(err, result){
+        
+        callback(true);
+
+        
+        });
+        });
+ 
+    }
+
 
 }
 

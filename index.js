@@ -324,16 +324,9 @@ app.get('/app/deleteAppScore',(req,res)=>{
               apps.deleteScore(req.query.scoreuuid,() =>{
                 res.send('{\"success\":\"Delete Settings\"}' )
               })
-  
-  
             }else{
-  
               res.send('{\"error\":\"No write Permission!\",\"errorcode\":\"009\"}' )
-           
             }
-  
-  
-  
            })
   
               
@@ -356,13 +349,105 @@ app.get('/app/deleteAppScore',(req,res)=>{
 
 
 
+  app.get('/device/listAvailable',(req,res)=>{
+ 
+    if(req.query.session) {
+      session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          
+              device.listAll( (devices) => {
+                if(devices) {
+                res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                }else{
+                  res.send(`{"success":false}`);
+                }
+              });
+              
+  
+  
+        }else{
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+      
+        }
+    }) 
+    }else{
+      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+  
+  })
+
+  app.get('/device/listAvailable',(req,res)=>{
+ 
+    if(req.query.session) {
+      session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          
+              device.listAll( (devices) => {
+                if(devices) {
+                res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                }else{
+                  res.send(`{"success":false}`);
+                }
+              });
+              
+  
+  
+        }else{
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+      
+        }
+    }) 
+    }else{
+      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+  
+  })
+
+  app.get('/device/listSpecificUserDevice',(req,res)=>{
+ 
+    if(req.query.session&&req.query.device) {
+      session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          session.getUserUUID(req.query.session.toString(),(uuid)=> {
+            if (uuid) {
+
+              device.listSpecificDevice(uuid,req.query.device.toString(), (devices) => {
+                if(devices) {
+                res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                }else{
+                  res.send(`{"success":false}`);
+                }
+              });
+              
+            }else{
+              res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+
+            }
+
+          })
+  
+        }else{
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+      
+        }
+    }) 
+    }else{
+      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+  
+  })
+
  const registrationCodes = [];
 app.get('/device/getRegistrationCode',(req,res) => {
     var regCode;
     while(true) {
-        const random = Math.floor(Math.random() * 8191); //Because this is in bin 13 length
+        const random = Math.floor(Math.random() * 16383); //Because this is in bin 14 length
         if (!registrationCodes.includes(random)) {
             regCode = random;
+            console.log(regCode);
             registrationCodes.push(regCode)
             break;
         }
@@ -571,6 +656,42 @@ app.get('/app/removeReadScore',(req,res)=>{
   }
 
 })
+
+app.get('/app/removeWriteScore',(req,res)=>{
+ 
+  if(req.query.session  && req.query.scoreuuid) {
+    session.validateSession2(req.query.session.toString(),(isValid) => {
+      if(isValid) {
+        session.reactivateSession(req.query.session);
+        session.getUserUUID(req.query.session.toString(),(uuid)=> {
+          if(uuid) {
+
+            apps.removeWriteScore(uuid, req.query.scoreuuid, (success) => {
+              if(success) {
+              res.send(`{"success":true}`);
+              }else{
+                res.send(`{"success":false}`);
+              }
+            });
+            
+
+          }else{
+            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+          }
+        })
+
+      }else{
+        res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+    
+      }
+  }) 
+  }else{
+    res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+  }
+
+})
+
+
 
 
 
