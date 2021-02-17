@@ -440,6 +440,43 @@ app.get('/app/deleteAppScore',(req,res)=>{
   
   })
 
+
+  app.get('/device/getDeviceConfig',(req,res)=>{
+ 
+    if(req.query.session&&req.query.device) {
+      session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          session.getUserUUID(req.query.session.toString(),(uuid)=> {
+            if (uuid) {
+
+              device.getDeviceConfig(uuid,req.query.device.toString(), (devices) => {
+                if(devices) {
+                res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                }else{
+                  res.send(`{"success":false}`);
+                }
+              });
+              
+            }else{
+              res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+
+            }
+
+          })
+  
+        }else{
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+      
+        }
+    }) 
+    }else{
+      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+  
+  })
+
+
  const registrationCodes = [];
 app.get('/device/getRegistrationCode',(req,res) => {
     var regCode;
@@ -691,10 +728,68 @@ app.get('/app/removeWriteScore',(req,res)=>{
 
 })
 
+app.get('/device/deleteDevice',(req,res)=>{
+
+  if(req.query.session && req.query.deviceuuid){
+    console.log(req.query.params)
+      session.validateSession2(req.query.session.toString(),(isValid) => {
+        if(isValid) {
+          session.reactivateSession(req.query.session);
+          session.getUserUUID(req.query.session.toString(),(uuid)=> {
+            if(uuid) {
+
+                res.send('{\"success\":\"Not implemented yet\"}' )
+              
+              
+  
+            }else{
+              res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+            }
+          })
+  
+        }else{
+          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+      
+        }
+    }) 
+    }else{
+      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    
+    }
+  })
 
 
+  app.get('/device/saveConfig',(req,res)=>{
+
+    if(req.query.session && req.query.deviceuuid && req.query.params){
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+          if(isValid) {
+            session.reactivateSession(req.query.session);
+            session.getUserUUID(req.query.session.toString(),(uuid)=> {
+              if(uuid) {
+    
+             
+                device.updateDeviceConfig(req.query.deviceuuid,req.query.params,() =>{
+                  res.send('{\"success\":\"Updated Settings\"}' )
+
+                })
 
 
+              }else{
+                res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+              }
+            })
+    
+          }else{
+            res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+        
+          }
+      }) 
+      }else{
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+      
+      }
+    })
 
 
 

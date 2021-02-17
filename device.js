@@ -28,6 +28,25 @@ var device = {
        });
    },
 
+
+   getDeviceConfig: function(uuid,deviceUUID,callback) {
+    if(!uuid) callback(undefined);
+
+         var sql = `SELECT config FROM deviceData WHERE uuid = ?`
+        global.connection.query(sql,[deviceUUID], function(err, result){
+
+            if(result&&result[0]){
+                console.log(result[0])
+                callback(result[0].config)
+
+            }else{
+                callback(undefined);
+            }
+
+        })
+
+   },
+
     storeUserDevices: function (userDevices,userUUID,callback) {
        if(!userDevices) callback(undefined);
         var sql = `UPDATE account SET accessibleDevices = ? WHERE uuid = ?`;
@@ -41,6 +60,17 @@ var device = {
     },
 
     
+
+    updateDeviceConfig: function(deviceuuid, config, callback){
+        var sql = `UPDATE deviceData SET config = ? WHERE UUID = ?`
+         global.connection.query(sql, [config,deviceuuid],function (err, result) {
+            console.log(err);
+            console.log(result);
+            callback();
+
+         })
+    },
+
 
     listAll: function(callback) {
 
