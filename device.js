@@ -117,8 +117,8 @@ var device = {
                                 if(r!=undefined&&r.deviceUUID===device) {
                                 return_result.push(r);
                                 }else{
-                                    //if(r.deviceUUID===device)
-                                    //removeReadScoreEntry(result[0].accessibleDevices,useruuid,JSON.parse(result[0].accessibleDevices)[counter]);
+                                    if(r==undefined||r.deviceUUID===device)
+                                    removeDeviceEntry(result[0].accessibleDevices,uuid,JSON.parse(result[0].accessibleDevices)[counter]);
                                     //TODO remove this
                                 }
     
@@ -158,4 +158,20 @@ function getDevice(deviceID,callback) {
 });
 
 
+}
+
+
+function removeDeviceEntry(devices,useruuid,uuid) {
+    const jsonArray = JSON.parse(devices)
+
+    const index = jsonArray.indexOf(uuid);
+    if (index > -1) {
+        jsonArray.splice(index, 1);
+    }
+
+   var sql_write=`UPDATE account SET accessibleDevices = ? WHERE uuid =  ?`;
+   global.connection.query(sql_write, [JSON.stringify(jsonArray),useruuid], function(err, result){
+
+    console.log(result);
+   })
 }
