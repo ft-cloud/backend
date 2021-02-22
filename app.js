@@ -26,101 +26,40 @@ module.exports = {
       
     },
 
+    getScores: function(appuuid,user,callback) {
+        console.log(appuuid);
 
-    
+        const sql_getScores = ' SELECT name,uuid FROM score s, readScoreAccess r WHERE (r.score=s.uuid) AND  (s.app=?) AND (r.user=?)'
+        global.connection.query(sql_getScores,[appuuid.toString(),user.toString()], function(err, resultRead){
 
-
-    
-    getWriteScores: function(appid,useruuid, callback){
-        var sql = `SELECT scoreWritePermission FROM account WHERE uuid = ?;`
-        global.connection.query(sql,[useruuid], function(err, result){
-            if (err) throw err;
-
-            currentWriteDelete =JSON.parse(result[0].scoreWritePermission)
-
-            if(JSON.parse(result[0].scoreWritePermission).length==0) {
-            callback([]);
-            }else{
-                var counter = 0;
-                var return_result = [];
-                for(var i=0;i<JSON.parse(result[0].scoreWritePermission).length;i++) {
-                    getScoreObject(appid,JSON.parse(result[0].scoreWritePermission)[i],(r)=>{
-                            
-                        if(r!=undefined&&r.app===appid) {
-                        r.readonly = false;
-                        return_result.push(r);
-                        }else{
-                            if(r==undefined||r.app===appid)
-                            removeWriteScoreEntry(result[0].scoreWritePermission,useruuid,JSON.parse(result[0].scoreWritePermission)[counter]);
-                        }
-                        counter++;
-
-                        if(counter==JSON.parse(result[0].scoreWritePermission).length) {
-
-                            callback(return_result);
-                        }
-
-                    })
-                } 
-                
-            }
-    });
-    }
-    ,
-    getReadScores: function(appid,useruuid, callback){
-        var sql = `SELECT scoreReadPermission FROM account WHERE uuid = ?;`
-        global.connection.query(sql, [useruuid],function(err, result){
-            if (err) throw err;
-            console.log("result: ");
-            console.log(JSON.parse(result[0].scoreReadPermission));
-            
-
-            if(JSON.parse(result[0].scoreReadPermission).length==0) {
-
-                callback([]);
-                }else{
-
-                    var counter = 0;
-                    var return_result = [];
-                    for(var i=0;i<JSON.parse(result[0].scoreReadPermission).length;i++) {
-                        getScoreObject(appid,JSON.parse(result[0].scoreReadPermission)[i],(r)=>{
-                                
-                            if(r!=undefined&&r.app===appid) {
-                                r.readonly = true;
-
-                            return_result.push(r);
-                            }else{
-                                if(r.app===appid)
-                                removeReadScoreEntry(result[0].scoreReadPermission,useruuid,JSON.parse(result[0].scoreReadPermission)[counter]);
-                            
-                            }
-
-                            counter++;
-
-                            if(counter==JSON.parse(result[0].scoreReadPermission).length) {
-    
-                                callback(return_result);
-                            }
-    
-                        })
-                    } 
-                    
+            const sql_getScores = 'SELECT name,uuid FROM score s, writeScoreAccess w WHERE (w.score=s.uuid) AND  (s.app=?) AND  (w.user=?)'
+            global.connection.query(sql_getScores,[appuuid.toString(),user.toString()], function(err, resultWrite){
+                const tempOBJ = {
+                    read: resultRead,
+                    write: resultWrite
                 }
 
+                callback(tempOBJ)
+
+            });
+
+        });
 
 
-    });
     },
+
+
+
 
     hasReadPermission: function(scoreuuid, useruuid,callback) {
         
-        var sql_getWritePermissionapps=`SELECT scoreWritePermission FROM account WHERE uuid = ?;`;
-        global.connection.query(sql_getWritePermissionapps,[useruuid.toString()], function(err, resultWrite){
+        var sql_getWritePermissionapps=`SELECT * FROM writeScoreAccess WHERE (user = ?) AND (score = ?);`;
+        global.connection.query(sql_getWritePermissionapps,[useruuid.toString(),scoreuuid.toString()], function(err, resultWrite){
 
 
-        var sql_getWritePermissionapps=`SELECT scoreReadPermission FROM account WHERE uuid = ?;`;
-        global.connection.query(sql_getWritePermissionapps,[useruuid.toString()], function(err, resultRead){
-        callback( JSON.parse(resultWrite[0].scoreWritePermission).includes(scoreuuid)||JSON.parse(resultRead[0].scoreReadPermission).includes(scoreuuid));
+        var sql_getWritePermissionapps=`SELECT * FROM readScoreAccess WHERE (user = ?) AND (score = ?);`;
+        global.connection.query(sql_getWritePermissionapps,[useruuid.toString(),scoreuuid.toString()], function(err, resultRead){
+        callback( resultWrite.length>0||resultRead.length>0);
 
         })
     })
@@ -128,10 +67,10 @@ module.exports = {
     },
     hasWritePermission: function(scoreuuid, useruuid,callback) {
 
-        var sql_getWritePermissionapps=`SELECT scoreWritePermission FROM account WHERE uuid = ?;`;
-        global.connection.query(sql_getWritePermissionapps,[useruuid.toString()], function(err, result){
+        var sql_getWritePermissionapps=`SELECT * FROM writeScoreAccess WHERE (user = ?) AND (score = ?);`;
+        global.connection.query(sql_getWritePermissionapps,[useruuid.toString(),scoreuuid.toString()], function(err, result){
             if (err) throw err;
-        callback(  JSON.parse(result[0].scoreWritePermission).includes(scoreuuid));
+            callback( result.length>0);
         })
 
     },
@@ -139,28 +78,18 @@ module.exports = {
   
     addScore: function(useruuid, name, Appuuid, callback){
         var scoreuuid=uuid.v4();
-        var sql_addScore=`INSERT INTO score (uuid,name,data,app) VALUES (?, ?,'{}',?)`;
-        global.connection.query(sql_addScore,[scoreuuid,name,Appuuid], function(err, result){
+        var sql_addScore=`INSERT INTO score (uuid,name,data,app,owner) VALUES (?, ?,'{}',?,?)`;
+        global.connection.query(sql_addScore,[scoreuuid,name,Appuuid,useruuid], function(err, result){
             if (err) throw err;
         
-        var old_scoreWritePermission;
-        var sql_getWritePermissionapps=`SELECT scoreWritePermission FROM account WHERE uuid = ?;`;
-        global.connection.query(sql_getWritePermissionapps, [useruuid.toString()],function(err, result){
-            if (err) throw err;
-            old_scoreWritePermission=result[0];
+            var sql_addScorePermission=`INSERT INTO writeScoreAccess (user,score,appid) VALUES (?, ?,?)`;
 
+            global.connection.query(sql_addScorePermission,[useruuid,scoreuuid,Appuuid], function(err, result){
+                if (err) throw err;
+                callback(scoreuuid);
+            });
 
-         const jsonArray =   JSON.parse(old_scoreWritePermission.scoreWritePermission)
-         jsonArray.push(scoreuuid); 
-
-        var sql_write=`UPDATE account SET scoreWritePermission = ? WHERE uuid = ?`;
-        global.connection.query(sql_write, [JSON.stringify(jsonArray),useruuid], function(err, result){
-        
-        callback(scoreuuid);
-
-        
-        });
-        });
+       
     });
     },
 
@@ -179,11 +108,13 @@ module.exports = {
     deleteScore: function(scoreuuid, callback){
         var sql = `DELETE FROM score WHERE UUID = ?`
          global.connection.query(sql,[scoreuuid], function (err, result) {
-            console.log(err);
-            console.log(result);
+            var sql_access = `DELETE FROM writeScoreAccess WHERE score = ?`
+            global.connection.query(sql_access,[scoreuuid], function (err1, result1) {
+
+
             callback();
 
-
+            })
          })
     },
     listInstalledApps: function(user, callback) {

@@ -17,16 +17,6 @@ var device = {
 
    },
 
-   getUserDevices: function (userUUID,callback) {
-       if(!userUUID) callback(undefined);
-       var sql = `SELECT accessibleDevices  FROM account WHERE uuid = ? `;
-
-       global.connection.query(sql,[userUUID], function (err, result) {
-           if (err) throw err;
-
-           callback(JSON.parse(result[0].accessibleDevices));
-       });
-   },
 
 
    getDeviceConfig: function(uuid,deviceUUID,callback) {
@@ -47,15 +37,14 @@ var device = {
 
    },
 
-    storeUserDevices: function (userDevices,userUUID,callback) {
-       if(!userDevices) callback(undefined);
-        var sql = `UPDATE account SET accessibleDevices = ? WHERE uuid = ?`;
+    storeUserDevices: function (userDeviceUUID,userUUID,deviceUUID,callback) {
+       if(!userDeviceUUID) callback(undefined);
+       var sql_addDevicePermission=`INSERT INTO userDeviceAccess (user,device,deviceType) VALUES (?, ?,?)`;
 
-        global.connection.query(sql,[userDevices,userUUID], function (err, result) {
-            if (err) throw err;
-
-            callback();
-        });
+       global.connection.query(sql_addDevicePermission,[userUUID,userDeviceUUID,deviceUUID], function(err, result){
+           if (err) throw err;
+           callback();
+       });
 
     },
 
@@ -71,14 +60,20 @@ var device = {
          })
     },
 
-    deleteScore: function(deviceuuid, callback){
-        var sql = `DELETE FROM deviceData WHERE UUID = ?`
-         global.connection.query(sql,[deviceuuid], function (err, result) {
-            console.log(err);
-            console.log(result);
-            callback();
+    deleteDeviceConnection: function(deviceuuid, callback){
+       
+            var sql = `DELETE FROM userDeviceAccess WHERE device = ?`
+            global.connection.query(sql,[deviceuuid], function (err, result) {
+                if(result.affectedRows>0) {
+                var sql = `DELETE FROM deviceData WHERE UUID = ?`
+                global.connection.query(sql,[deviceuuid], function (err, result) {
 
+            callback(true);
 
+        })
+    }else{
+        callback(false);
+    }
          })
     },
 
@@ -96,44 +91,26 @@ var device = {
 
     },
 
+    deleteAPIKey: function(deviceuuid,callback) {
+
+        var sql = `DELETE FROM session WHERE usedBy = ?`
+        global.connection.query(sql,[deviceuuid], function (err, result) {
+           console.log(err);
+           console.log(result);
+           callback();
+
+
+        })
+
+       
+    },
+
 
     listSpecificDevice: function(uuid,device,callback) {
-            var sql = `SELECT accessibleDevices FROM account WHERE uuid = ?;`
-            global.connection.query(sql, [uuid],function(err, result){
-                if (err) throw err;
-                console.log(JSON.parse(result[0].accessibleDevices));
-                
-    
-                if(JSON.parse(result[0].accessibleDevices).length==0) {
-    
-                    callback([]);
-                    }else{
-    
-                        var counter = 0;
-                        var return_result = [];
-                        for(var i=0;i<JSON.parse(result[0].accessibleDevices).length;i++) {
-                            getDevice(JSON.parse(result[0].accessibleDevices)[i],(r)=>{
-                                    
-                                if(r!=undefined&&r.deviceUUID===device) {
-                                return_result.push(r);
-                                }else{
-                                    if(r==undefined||r.deviceUUID===device)
-                                    removeDeviceEntry(result[0].accessibleDevices,uuid,JSON.parse(result[0].accessibleDevices)[counter]);
-                                    //TODO remove this
-                                }
-    
-                                counter++;
-    
-                                if(counter==JSON.parse(result[0].accessibleDevices).length) {
-                                    callback(return_result);
-                                }
-        
-                            })
-                        } 
-                        
-                    }
-    
-    
+            var sql = `SELECT name,uuid,config,deviceUUID FROM deviceData d, userDeviceAccess u WHERE (d.uuid=u.device) AND  (d.deviceUUID=?) AND (u.user=?)`
+            global.connection.query(sql, [device,uuid],function(err, result){
+              
+                callback(result);
     
         });
         
@@ -149,29 +126,3 @@ var device = {
 module.exports = device;
 
 
-function getDevice(deviceID,callback) {
-
-    var sql = `SELECT * FROM deviceData WHERE uuid = ?;`
-    global.connection.query(sql, [deviceID],function(err, result){
-        if (err) throw err;
-        callback(result[0]);
-});
-
-
-}
-
-
-function removeDeviceEntry(devices,useruuid,uuid) {
-    const jsonArray = JSON.parse(devices)
-
-    const index = jsonArray.indexOf(uuid);
-    if (index > -1) {
-        jsonArray.splice(index, 1);
-    }
-
-   var sql_write=`UPDATE account SET accessibleDevices = ? WHERE uuid =  ?`;
-   global.connection.query(sql_write, [JSON.stringify(jsonArray),useruuid], function(err, result){
-
-    console.log(result);
-   })
-}

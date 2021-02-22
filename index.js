@@ -25,7 +25,11 @@ global.connection.connect();
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('LEDWall API V1.0')
+  res.send('LEDWall API V1.1')
+})
+
+app.get('/v2', (req, res) => {
+  res.send('LEDWall API V2.0')
 })
 
 
@@ -40,6 +44,9 @@ app.get('/auth/signup',(req,res)=> {
 
   }
 })
+
+
+
 
 app.get('/auth/signin',(req,res)=>{
 
@@ -65,7 +72,7 @@ app.get('/auth/validateSession',(req,res) => {
   if(req.query.session) {
     session.validateSession(req.query.session.toString(),res);
   }else{
-    res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\"}');
+    res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\",\"success\":false}');
   }
 });
 
@@ -81,7 +88,7 @@ app.get('/account/info',(req,res) => {
                     if(uuid) {
                        account.getAccountByUUID(uuid,(account)=> {
                            if(account) {
-                               res.send(JSON.stringify(account));
+                               res.send(JSON.stringify(account)); 
                            }else{
                                res.send();
                            }
@@ -225,21 +232,12 @@ app.get('/app/getAppScores', (req, res) =>{
         session.getUserUUID(req.query.session.toString(),(uuid)=> {
           if(uuid) {
 
-            apps.getWriteScores(req.query.appuuid,uuid, (writeScore) => {
-                apps.getReadScores(req.query.appuuid,uuid, (readScore)=> {
+            apps.getScores(req.query.appuuid,uuid, (scors) => {
 
-                  const writeObject = writeScore;
-                  const readObject = readScore;
-                  const tempOBJ = {
-                    write: writeObject,
-                    read: readObject
-                  }
-
-                  
-                  res.send(JSON.stringify(tempOBJ));
+                console.log(scors)
+                  res.send(JSON.stringify(scors));
 
 
-                });
 
             });
 
@@ -376,33 +374,6 @@ app.get('/app/deleteAppScore',(req,res)=>{
   
   })
 
-  app.get('/device/listAvailable',(req,res)=>{
- 
-    if(req.query.session) {
-      session.validateSession2(req.query.session.toString(),(isValid) => {
-        if(isValid) {
-          session.reactivateSession(req.query.session);
-          
-              device.listAll( (devices) => {
-                if(devices) {
-                res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
-                }else{
-                  res.send(`{"success":false}`);
-                }
-              });
-              
-  
-  
-        }else{
-          res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
-      
-        }
-    }) 
-    }else{
-      res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
-    }
-  
-  })
 
   app.get('/device/listSpecificUserDevice',(req,res)=>{
  
@@ -478,8 +449,10 @@ app.get('/app/deleteAppScore',(req,res)=>{
 
  const registrationCodes = [];
 app.get('/device/getRegistrationCode',(req,res) => {
+
     var regCode;
-    while(true) {
+    var counter = 0;
+    while(counter<200) {
         const random = Math.floor(Math.random() * 16383); //Because this is in bin 14 length
         if (!registrationCodes.includes(random)) {
             regCode = random;
@@ -487,27 +460,42 @@ app.get('/device/getRegistrationCode',(req,res) => {
             registrationCodes.push(regCode)
             break;
         }
+        counter++;
+
+    }
+    if(counter>199) {
+      res.send("something went wrong (No API Keys available)");
+
+
+    }
+    const tempOBJ = {
+      token: regCode
 
     }
 
-    res.send(regCode+"");
+    res.send(JSON.stringify(tempOBJ));
 
    })
+
+
+  
 
 const waitForRegistrationDevices = [];
 
 app.get('/device/waitForRegistration',(req,res)=>{
 
+
     if(req.query.regCode&&req.query.deviceUUID&&req.query.deviceName) {
 
         if(registrationCodes.includes(Number.parseInt(req.query.regCode))) {
-            const obj = {
+            var objTest = {
                 uuid: req.query.deviceUUID.toString(),
                 res: res,
                 name: req.query.deviceName
             }
 
-            waitForRegistrationDevices[req.query.regCode.toString()] = obj;
+            
+            waitForRegistrationDevices[req.query.regCode.toString()] = objTest;
 
         }else {
             res.send('{\"error\":\"No valid registration code!\",\"errorcode\":\"010\"}')
@@ -535,16 +523,16 @@ app.get('/device/registerByCode',(req,res)=>{
                     if (uuid) {
 
                         if (registrationCodes.includes(Number.parseInt(req.query.regCode))) {
-                            session.generateAPIKey(uuid, waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),(apiKey)=>{
-
-                                waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{"success":"true","apiKey":"${apiKey}"}`);
+                           
                                 //Create Devices in Database
                                 device.createDeviceEntry(waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),waitForRegistrationDevices[req.query.regCode.toString()].name.toString(),(AddUuid)=>{
-                                    //Get User Devices
-                                    device.getUserDevices(uuid,(userDevices)=>{
-                                    userDevices.push(AddUuid)
+                                    
+                                  session.generateAPIKey(uuid,AddUuid,(apiKey)=>{
+
+                                    waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{"success":"true","APIKey":"${apiKey}"}`);
+                                 
                                         //Store User Device
-                                        device.storeUserDevices(JSON.stringify(userDevices),uuid,()=>{
+                                        device.storeUserDevices(AddUuid,uuid,waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),()=>{
 
                                             //Answer Request
                                             res.send('{\"success\":\"Registration done\"}')
@@ -561,7 +549,7 @@ app.get('/device/registerByCode',(req,res)=>{
                                         })
 
 
-                                    });
+                                
 
                                 })
 
@@ -736,18 +724,20 @@ app.get('/device/deleteDevice',(req,res)=>{
           session.reactivateSession(req.query.session);
           session.getUserUUID(req.query.session.toString(),(uuid)=> {
             if(uuid) {
-              device.getUserDevices(uuid,(data)=>{
-                if(data.indexOf(req.query.deviceuuid)!=-1) {
-                  device.deleteScore(req.query.deviceuuid,()=>{
-                    res.send('{\"success\":\"true\"}' )
+              
+                
+                  device.deleteDeviceConnection(req.query.deviceuuid,(result)=>{
+                    if(result) {
+                    device.deleteAPIKey(req.query.deviceuuid,()=>{
+                      res.send('{\"success\":\"true\"}' )
+                    })
+                  }else{
+                    res.send('{\"error\":\"No write Permission\",\"errorcode\":\"009\"}' )
+                  }
                   })
 
-                }else{
-                  res.send('{\"error\":\"No write Permission!\",\"errorcode\":\"009\"}' )
+                
 
-                }
-
-              })
 
               
   
@@ -840,5 +830,9 @@ function validateSignUp(name, email, password) {
 }
 }
 
+
+app.use(function(req, res, next) {
+  res.status(404).send('Something went wrong!');
+});
 
 

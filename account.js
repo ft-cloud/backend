@@ -111,5 +111,5 @@ module.exports = account;
         if (err) throw err;
       });
       
-    res.send(`{\"info\":\"Account creating done\",\"session\":\"${session.startsession(user)}\"}`)
+    res.send(`{\"success\":\"Account creating done\",\"session\":\"${session.startsession(user)}\"}`)
   }

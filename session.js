@@ -62,7 +62,7 @@ var session ={
 
         global.connection.query(sql, function (err, result) {
           if (err) throw err;
-          res.send(`{\"info\":\"loged out\"}`)
+          res.send(`{\"success\":\"loged out\"}`)
 
          });
 
@@ -77,11 +77,11 @@ var session ={
         global.connection.query(sql, function (err, result) {
           console.log(result);
           if(result&&result[0]) {
-           res.send("{\"result\": \"yes\"}")
+           res.send("{\"success\": true}")
       
           }else{
       
-            res.send("{\"result\": \"no\"}")
+            res.send("{\"success\": false}")
       
           }
         
