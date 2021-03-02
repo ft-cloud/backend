@@ -105,9 +105,62 @@ var device = {
        
     },
 
+    getDeviceUUID: function(session,callback) {
+        console.log(session)
+
+        var sql = `SELECT usedBy FROM session WHERE uuid = ?`
+        global.connection.query(sql,[session], function (err, result) {
+           console.log(err);
+           console.log(result);
+           if(result[0]!=undefined) {
+           callback(result[0].usedBy);
+           }else{
+               callback(undefined)
+           }
+
+
+        })
+
+       
+    },
+
+    getOnlineState: function(deviceuuid,callback) {
+
+        var sql = `SELECT online FROM deviceData WHERE uuid = ?`
+        global.connection.query(sql,[deviceuuid], function (err, result) {
+           console.log(err);
+           console.log(result);
+           if(result[0]!=undefined) {
+           callback(result[0].online);
+           }else{
+               callback(undefined)
+           }
+
+
+        })
+
+       
+    },
+
+    setOnlineState: function(state,deviceuuid,callback) {
+
+        var sql = `UPDATE deviceData SET online = ? WHERE uuid = ?`
+        global.connection.query(sql,[state,deviceuuid], function (err, result) {
+           console.log(err);
+           console.log(result);
+           callback();
+
+
+        })
+
+       
+    },
+
+    
+
 
     listSpecificDevice: function(uuid,device,callback) {
-            var sql = `SELECT name,uuid,config,deviceUUID FROM deviceData d, userDeviceAccess u WHERE (d.uuid=u.device) AND  (d.deviceUUID=?) AND (u.user=?)`
+            var sql = `SELECT name,uuid,config,deviceUUID,online FROM deviceData d, userDeviceAccess u WHERE (d.uuid=u.device) AND  (d.deviceUUID=?) AND (u.user=?)`
             global.connection.query(sql, [device,uuid],function(err, result){
               
                 callback(result);

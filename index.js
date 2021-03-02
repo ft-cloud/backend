@@ -10,6 +10,8 @@ const app = express()
 const port = 8146
 var device = require('./device')
 
+var expressWs = require('express-ws')(app);
+
 
 global.connection = mysql.createConnection({
   host     : '172.17.0.2',
@@ -788,6 +790,58 @@ app.get('/device/deleteDevice',(req,res)=>{
         res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
       
       }
+    })
+
+    app.ws('/device/liveconnection',function(ws,req) {
+
+
+
+      if(req.query.session ) {
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+          if(isValid) {
+            session.reactivateSession(req.query.session);
+            session.getUserUUID(req.query.session.toString(),(uuid)=> {
+              if(uuid) {
+
+                device.getDeviceUUID(req.query.session ,(uuid)=>{
+                  device.setOnlineState(1,uuid,()=>{
+                  });
+                })
+
+                ws.on('close', function() {
+
+                  device.getDeviceUUID(req.query.session ,(uuid)=>{
+                    device.setOnlineState(0,uuid,()=>{
+                    });
+                  })
+
+                })
+
+                ws.send("Hello Client");
+
+                ws.on('message', function(msg){
+          
+                  ws.send(msg);
+          
+          
+                }); 
+    
+              }else{
+                ws.close();
+              }
+            })
+    
+          }else{
+            ws.close();
+          }
+      }) 
+      }else{
+        ws.close();
+      }
+
+
+    
+
     })
 
 
