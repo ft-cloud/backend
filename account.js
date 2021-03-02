@@ -54,7 +54,7 @@ var account = {
 
       getAccountByUUID: function(uuid,callback) {
         console.log(uuid);
-        var sql = `SELECT * FROM account WHERE uuid = ?;`;
+        var sql = `SELECT uuid,name,created_at FROM account WHERE uuid = ?;`;
         global.connection.query(sql, [uuid.toString()],function (err, result) {
 
           if(result&&result[0]) {

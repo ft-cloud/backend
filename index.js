@@ -12,6 +12,7 @@ var device = require('./device')
 
 var expressWs = require('express-ws')(app);
 
+const liveDeviceConnection = new Map();
 
 global.connection = mysql.createConnection({
   host     : '172.17.0.2',
@@ -731,6 +732,12 @@ app.get('/device/deleteDevice',(req,res)=>{
                   device.deleteDeviceConnection(req.query.deviceuuid,(result)=>{
                     if(result) {
                     device.deleteAPIKey(req.query.deviceuuid,()=>{
+                      try {
+                      if(liveDeviceConnection.get(req.query.deviceuuid))
+                     liveDeviceConnection.get(req.query.deviceuuid).close();
+                      }catch(e) {}
+                      liveDeviceConnection.delete(req.query.deviceuuid)
+
                       res.send('{\"success\":\"true\"}' )
                     })
                   }else{
@@ -792,6 +799,8 @@ app.get('/device/deleteDevice',(req,res)=>{
       }
     })
 
+
+
     app.ws('/device/liveconnection',function(ws,req) {
 
 
@@ -803,28 +812,40 @@ app.get('/device/deleteDevice',(req,res)=>{
             session.getUserUUID(req.query.session.toString(),(uuid)=> {
               if(uuid) {
 
-                device.getDeviceUUID(req.query.session ,(uuid)=>{
-                  device.setOnlineState(1,uuid,()=>{
+                
+
+                device.getDeviceUUID(req.query.session ,(deviceuuid)=>{
+
+                  liveDeviceConnection.set(deviceuuid,ws)
+
+                  device.setOnlineState(1,deviceuuid,()=>{
+
+                    ws.on('close', function() {
+
+                      device.getDeviceUUID(req.query.session ,(deviceuuid)=>{
+                        liveDeviceConnection.delete(deviceuuid)
+    
+                        device.setOnlineState(0,deviceuuid,()=>{
+                      
+    
+                        });
+                      })
+    
+                    })
+    
+                    ws.on('message', function(msg){
+                      if(!liveDeviceConnection.has(ws)) ws.close();
+                      ws.send(msg);
+              
+              
+                    }); 
+
+
+
                   });
                 })
 
-                ws.on('close', function() {
-
-                  device.getDeviceUUID(req.query.session ,(uuid)=>{
-                    device.setOnlineState(0,uuid,()=>{
-                    });
-                  })
-
-                })
-
-                ws.send("Hello Client");
-
-                ws.on('message', function(msg){
-          
-                  ws.send(msg);
-          
-          
-                }); 
+               
     
               }else{
                 ws.close();
