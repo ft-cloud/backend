@@ -9,10 +9,12 @@ const { deleteScore } = require('./app');
 const app = express()
 const port = 8146
 var device = require('./device')
+const rateLimit = require("express-rate-limit");
 
 var expressWs = require('express-ws')(app);
 
 const liveDeviceConnection = new Map();
+
 
 global.connection = mysql.createConnection({
   host     : '172.17.0.2',
@@ -22,6 +24,11 @@ global.connection = mysql.createConnection({
 });
 
 
+const limiter = rateLimit({
+  windowMs: 1 * 10 * 1000, // 15 minutes
+  max: 8 // limit each IP to 50 requests per windowMs
+});
+//app.use(limiter); 
 
 global.connection.connect();
 
@@ -778,6 +785,10 @@ app.get('/device/deleteDevice',(req,res)=>{
     
              
                 device.updateDeviceConfig(req.query.deviceuuid,req.query.params,() =>{
+                  if(liveDeviceConnection.has(req.query.deviceuuid)) {
+
+                    liveDeviceConnection.get(req.query.deviceuuid).send(`{"message": "configChange","content": ${req.query.params}}`)
+                  }
                   res.send('{\"success\":\"Updated Settings\"}' )
 
                 })
@@ -834,7 +845,7 @@ app.get('/device/deleteDevice',(req,res)=>{
                     })
     
                     ws.on('message', function(msg){
-                      if(!liveDeviceConnection.has(ws)) ws.close();
+                      if(Array.from(liveDeviceConnection.values()).includes(ws)) { ws.close();  return}
                       ws.send(msg);
               
               
@@ -864,6 +875,53 @@ app.get('/device/deleteDevice',(req,res)=>{
     
 
     })
+
+
+    app.get('/device/listinstalledcompatibleapps', (req,res)=>{
+      if(req.query.deviceuuid&&req.query.session) {
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+            if(isValid) {
+              session.reactivateSession(req.query.session);
+              session.getUserUUID(req.query.session.toString(),(uuid)=> {
+    
+                if(uuid) {
+
+             
+                
+                      device.getDeviceTypFromDevice(req.query.deviceuuid,(deviceTyp)=>{
+
+                 apps.listInstalledCompatibleApps(uuid, deviceTyp.UUID,(apps) => {
+    
+                  if(apps) {
+                    res.send(`{"list": ${apps}}`);
+    
+                  }else{
+                    res.send('{\"error\":\"No valid Session!\",\"errorcode\":\"006\"}' )
+    
+                  }
+    
+                 })
+
+                })
+                
+
+
+              
+
+                }else{
+                  res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+                }
+              })
+    
+            }else{
+              res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+          
+            }
+        }) 
+      }else{
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+      }
+    });
 
 
 

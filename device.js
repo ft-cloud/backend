@@ -156,7 +156,20 @@ var device = {
        
     },
 
-    
+    getDeviceTypFromDevice: function(deviceuuid,callback) {
+        const sql = `SELECT deviceUUID FROM deviceData WHERE uuid = ?`;
+        global.connection.query(sql, [deviceuuid],function(err, result){
+            const sql_getDeviceType = `SELECT * FROM device WHERE UUID = ?`;
+            global.connection.query(sql_getDeviceType, [result[0].deviceUUID],function(err, result){
+
+                callback(result[0])
+
+
+
+            })
+        })
+
+    },
 
 
     listSpecificDevice: function(uuid,device,callback) {

@@ -125,6 +125,7 @@ module.exports = {
                 callback(undefined)
                 return;
             }
+       
             var rawinstalledapps=JSON.parse(user.installedApps);
             var output = [];
             counter = 0;
@@ -159,6 +160,66 @@ module.exports = {
 
            
         })
+
+    },
+
+
+    listInstalledCompatibleApps: function(user,deviceuuid, callback) {
+        account.getAccountByUUID(user, (user) => {
+
+       
+            var rawinstalledapps=JSON.parse(user.installedApps);
+            var output = [];
+            counter = 0;
+
+            if(rawinstalledapps.installedApps===undefined||!rawinstalledapps) {
+               
+                callback(undefined)
+                return;
+            }
+
+
+            const sql_getCompatibleApps = `SELECT compatibleApps FROM device WHERE UUID = ?`
+            global.connection.query(sql_getCompatibleApps,[deviceuuid],function(err,resultApps) {
+                console.log("deviceTyp")
+
+                console.log(deviceuuid)
+                if(resultApps&&resultApps[0]) {
+                    const comApps = JSON.parse(resultApps[0].compatibleApps)
+                
+                 
+
+
+
+            for(var i=0;i<rawinstalledapps.installedApps.length; i++){
+                var sql = `SELECT * FROM application WHERE uuid = ?;`;
+                global.connection.query(sql,[ rawinstalledapps.installedApps[i]], function (err, result) {
+
+                    if(result&&result[0]) {
+                        const tempObject = {
+                            UUID: result[0].UUID,
+                            name: result[0].name,
+                        }
+                         tempObject["config"] = JSON.parse(result[0].config);
+                         tempObject["info"] = JSON.parse(result[0].info);
+                         if(comApps.indexOf(result[0].UUID)!=-1)
+                         output.push(tempObject);
+                       
+
+                    }
+                    counter++;
+                    if(counter==(rawinstalledapps.installedApps.length)) {
+                        callback(JSON.stringify(output));
+                    }
+
+                  });
+            }
+            
+
+        }
+        })
+
+    })
 
     },
 
