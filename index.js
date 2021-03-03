@@ -539,7 +539,7 @@ app.get('/device/registerByCode',(req,res)=>{
                                     
                                   session.generateAPIKey(uuid,AddUuid,(apiKey)=>{
 
-                                    waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{"success":"true","APIKey":"${apiKey}"}`);
+                                    waitForRegistrationDevices[req.query.regCode.toString()].res.send(`{"success":"true","APIKey":"${apiKey}","deviceuuid":"${AddUuid}"}`);
                                  
                                         //Store User Device
                                         device.storeUserDevices(AddUuid,uuid,waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(),()=>{
@@ -830,6 +830,9 @@ app.get('/device/deleteDevice',(req,res)=>{
                   liveDeviceConnection.set(deviceuuid,ws)
 
                   device.setOnlineState(1,deviceuuid,()=>{
+
+
+                    ws.send(`{"message": "deviceuuid","content": {"deviceuuid":"${deviceuuid}"}}`)
 
                     ws.on('close', function() {
 
