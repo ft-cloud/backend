@@ -338,8 +338,17 @@ module.exports = {
         });
         });
  
-    }
+    },
 
+    getInstallURL: function(appuuid,callback) {
+        var sql=`SELECT url FROM application WHERE uuid = ?;`;
+        global.connection.query(sql,[appuuid], function(err, result){
+            if (err) throw err;
+         callback(result[0]);
+    })
+
+
+    }
 
 }
 

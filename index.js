@@ -355,6 +355,32 @@ app.get('/app/deleteAppScore',(req,res)=>{
   })
 
 
+  app.get('/app/getInstallURL',(req,res)=>{
+
+    if(req.query.session && req.query.appuuid){
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+          if(isValid) {
+            session.reactivateSession(req.query.session);
+           
+    
+                apps.getInstallURL(req.query.appuuid,(url) =>{
+                  res.send('{\"success\":'+JSON.stringify(url)+'}' )
+                })
+              
+    
+    
+          }else{
+            res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+        
+          }
+      }) 
+      }else{
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+      
+      }
+    })
+
+
 
   app.get('/device/listAvailable',(req,res)=>{
  
@@ -786,8 +812,7 @@ app.get('/device/deleteDevice',(req,res)=>{
              
                 device.updateDeviceConfig(req.query.deviceuuid,req.query.params,() =>{
                   if(liveDeviceConnection.has(req.query.deviceuuid)) {
-
-                    liveDeviceConnection.get(req.query.deviceuuid).send(`{"message": "configChange","content": ${req.query.params}}`)
+                    liveDeviceConnection.get(req.query.deviceuuid).send(packWSContent("configChange",`${req.query.params}`))
                   }
                   res.send('{\"success\":\"Updated Settings\"}' )
 
@@ -811,6 +836,13 @@ app.get('/device/deleteDevice',(req,res)=>{
     })
 
 
+    function packWSContent(message,content) {
+
+      const jsonOutput = `{"message": "${message}","content": ${content}}`;
+      return jsonOutput;
+
+    }
+
 
     app.ws('/device/liveconnection',function(ws,req) {
 
@@ -832,17 +864,32 @@ app.get('/device/deleteDevice',(req,res)=>{
                   device.setOnlineState(1,deviceuuid,()=>{
 
 
-                    ws.send(`{"message": "deviceuuid","content": {"deviceuuid":"${deviceuuid}"}}`)
+                    ws.send(packWSContent("deviceuuid",`{"deviceuuid":"${deviceuuid}"}`));
+
+                    device.getDeviceTypFromDevice(deviceuuid,(deviceTyp)=>{
+                    apps.listInstalledCompatibleApps(uuid, deviceTyp.UUID,(apps) => {
+    
+                      if(apps) {
+                       var appuuid =  []
+                        JSON.parse(apps).forEach(e=> {appuuid.push(e.UUID);})
+                        const tempObj = {
+                          apps: appuuid
+                        }
+                        ws.send(packWSContent("syncApps",JSON.stringify(tempObj)));        
+                        console.log(packWSContent("syncApps",JSON.stringify(tempObj)))
+                      }
+      
+                     })
+
+                    })
+
 
                     ws.on('close', function() {
 
                       device.getDeviceUUID(req.query.session ,(deviceuuid)=>{
                         liveDeviceConnection.delete(deviceuuid)
     
-                        device.setOnlineState(0,deviceuuid,()=>{
-                      
-    
-                        });
+                        device.setOnlineState(0,deviceuuid,()=>{});
                       })
     
                     })
