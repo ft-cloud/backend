@@ -21,9 +21,66 @@ module.exports = {
             }
 
         })
-    
+    },
 
-      
+    getAppUUIDByScore: function(scoreuuid,callback) {
+        var sql = `SELECT app FROM score WHERE uuid = ?`
+        global.connection.query(sql,[scoreuuid], function(err, result){
+
+            if(result&&result[0]&&result[0].app){
+
+                callback(result[0].app)
+
+            }else{
+                callback(undefined);
+            }
+
+        })
+
+
+    },
+
+
+    setDefaultScore: function(scoreuuid,appuuid,callback) {
+
+        var getOwner = `SELECT owner FROM score WHERE uuid = ?`
+
+
+        global.connection.query(getOwner,[scoreuuid], function(err, result){
+
+            if(result&&result[0]&&result[0].owner){
+
+               
+                var removedefaultsql = `UPDATE score SET defaultScore = 0 WHERE ((owner = ?) AND (app = ?) AND (defaultScore = 1))`
+                global.connection.query(removedefaultsql,[result[0].owner,appuuid], function(err, result){
+        
+                    var sql = `UPDATE score SET defaultScore = 1 WHERE uuid = ?`
+
+
+                global.connection.query(sql,[scoreuuid], function(err, result){
+
+                    callback();
+
+
+                })
+
+
+
+
+        
+                })
+
+
+            }else{
+                callback(undefined);
+            }
+
+        })
+
+
+       
+
+
     },
 
     getScores: function(appuuid,user,callback) {
