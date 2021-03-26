@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="dbd26c38-7d68-481e-9784-bb1563614ac9" name="LEDWall" url="http://217.160.175.116/ledwall/src/">
+        <fileTransfer rootFolder="/home/ft/ledwall/backend" accessType="SFTP" host="217.160.175.116" port="22" sshConfigId="ff02b918-e101-40c5-b093-a1a33817c7f3" sshConfig="LEDWall">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
