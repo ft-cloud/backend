@@ -69,12 +69,11 @@ var session ={
 
 
       },
-
       validateSession: function(session,res) {
 
-        var sql = `SELECT 'UUID' FROM session WHERE uuid = '${session.toString()}';`;
+        var sql = `SELECT 'UUID' FROM session WHERE uuid = ?;`;
 
-        global.connection.query(sql, function (err, result) {
+        global.connection.query(sql,[session.toString()], function (err, result) {
           console.log(result);
           if(result&&result[0]) {
            res.send("{\"success\": true}")
