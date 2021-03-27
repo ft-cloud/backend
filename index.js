@@ -137,8 +137,8 @@ app.get('/app/setDefaultScore', (req,res)=>{
 
               apps.getAppUUIDByScore(req.query.scoreuuid,(appuuid)=> {
 
-             apps.setDefaultScore(req.query.scoreuuid,appuuid, () => {
-
+             apps.setDefaultScore(req.query.scoreuuid,appuuid,uuid, (retrun) => {
+                res.send(`{"success":true}`);
               
 
             })

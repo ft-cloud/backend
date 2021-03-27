@@ -41,46 +41,33 @@ module.exports = {
     },
 
 
-    setDefaultScore: function(scoreuuid,appuuid,callback) {
+    setDefaultScore: function(scoreuuid,appuuid,useruuid,callback) {
 
-        var getOwner = `SELECT owner FROM score WHERE uuid = ?`
-
-
-        global.connection.query(getOwner,[scoreuuid], function(err, result){
-
-            if(result&&result[0]&&result[0].owner){
-
-               
-                var removedefaultsql = `UPDATE score SET defaultScore = 0 WHERE ((owner = ?) AND (app = ?) AND (defaultScore = 1))`
-                global.connection.query(removedefaultsql,[result[0].owner,appuuid], function(err, result){
-        
-                    var sql = `UPDATE score SET defaultScore = 1 WHERE uuid = ?`
-
-
-                global.connection.query(sql,[scoreuuid], function(err, result){
-
-                    callback();
-
-
-                })
-
-
-
-
-        
-                })
-
-
-            }else{
+        this.hasReadPermission(scoreuuid,useruuid,(permission)=> {
+            if (!permission) {
                 callback(undefined);
+                return;
             }
 
-        })
+            const CheckExist = "SELECT * FROM selectedScore WHERE useruuid = ? AND appuuid = ?;";
+            global.connection.query(CheckExist, [useruuid.toString(), appuuid.toString()], function (err, exist) {
+
+                if(!exist[0]) {
+                    const createSelectedScore = "INSERT INTO selectedScore (useruuid,appuuid,scoreuuid) VALUES (?,?,?);"
+                    global.connection.query(createSelectedScore, [useruuid.toString(), appuuid.toString(),scoreuuid.toString()], function (err, insert) {
+                        callback(true);
+                    });
+                }else{
+                    const updateSelectedScore = "UPDATE selectedScore SET scoreuuid = ? WHERE useruuid = ? AND appuuid = ?"
+                    global.connection.query(updateSelectedScore, [scoreuuid.toString(),useruuid.toString(), appuuid.toString()], function (err, insert) {
+                        callback(true);
+                    });
+                }
 
 
-       
+            });
 
-
+        });
     },
 
     getScores: function(appuuid,user,callback) {
@@ -337,26 +324,24 @@ module.exports = {
 
     removeReadScore: function(useruuid, scoreuuid, callback){
 
-        var old_scores;
-        var sql_getReadScores=`SELECT scoreReadPermission FROM account WHERE uuid = ?;`;
-        global.connection.query(sql_getReadScores,[useruuid.toString()], function(err, result){
+
+
+
+
+        var sql_getReadScores=`SELECT * FROM readScoreAccess WHERE user = ? AND score = ?;`;
+        global.connection.query(sql_getReadScores,[useruuid.toString(),scoreuuid.toString()], function(err, result){
             if (err) throw err;
-            old_scores=result[0];
 
-
-         const jsonArray =   JSON.parse(old_scores.scoreReadPermission)
-
-         const index = jsonArray.indexOf(scoreuuid);
-         if (index > -1) {
-            jsonArray.splice(index, 1);
-         }else{
-             callback(false)
+            console.log("work")
+         if(!result[0]) {
+             callback(false);
+             return;
          }
+            console.log("work2")
 
-         
 
-        var sql_write=`UPDATE account SET scoreReadPermission = ? WHERE uuid = ?`;
-        global.connection.query(sql_write,[JSON.stringify(jsonArray),useruuid], function(err, result){
+        var sql_write=`DELETE FROM readScoreAccess WHERE user = ? AND score = ?`;
+        global.connection.query(sql_write,[useruuid,scoreuuid], function(err, result){
         
         callback(true);
 
@@ -368,33 +353,30 @@ module.exports = {
 
     removeWriteScore: function(useruuid, scoreuuid, callback){
 
+
         var old_scores;
-        var sql_getWriteScores=`SELECT scoreWritePermission FROM account WHERE uuid = ?;`;
-        global.connection.query(sql_getWriteScores,[useruuid.toString()], function(err, result){
+        var sql_getWriteScores=`SELECT * FROM writeScoreAccess WHERE user = ? AND score = ?;`;
+        global.connection.query(sql_getWriteScores,[useruuid.toString(),scoreuuid.toString()], function(err, result){
             if (err) throw err;
             old_scores=result[0];
 
 
-         const jsonArray =   JSON.parse(old_scores.scoreWritePermission)
 
-         const index = jsonArray.indexOf(scoreuuid);
-         if (index > -1) {
-            jsonArray.splice(index, 1);
-         }else{
-             callback(false)
-         }
+            if(!result[0]) {
+                callback(false);
+                return;
+            }
 
-         
 
-        var sql_write=`UPDATE account SET scoreWritePermission = ? WHERE uuid = ?`;
-        global.connection.query(sql_write,[JSON.stringify(jsonArray),useruuid], function(err, result){
-        
-        callback(true);
 
-        
+            var sql_write=`DELETE FROM writeScoreAccess WHERE user = ? AND score = ?`;
+            global.connection.query(sql_write,[useruuid,scoreuuid], function(err, result){
+
+                callback(true);
+
+
+            });
         });
-        });
- 
     },
 
     getInstallURL: function(appuuid,callback) {
