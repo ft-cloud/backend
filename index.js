@@ -8,6 +8,7 @@ var cors = require('cors');
 const { deleteScore } = require('./app');
 const app = express()
 const port = 8146
+
 var device = require('./device')
 const rateLimit = require("express-rate-limit");
 
@@ -482,6 +483,47 @@ app.get('/app/deleteAppScore',(req,res)=>{
   
   })
 
+
+app.get('/auth/addAPIKey',(req,res)=>{
+
+    if(req.query.session) {
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+            if(isValid) {
+                session.reactivateSession(req.query.session);
+                session.getUserUUID(req.query.session.toString(),(uuid)=> {
+                    if (uuid) {
+                    const AddUuid = "unknown";
+                        session.generateAPIKey(uuid,AddUuid,(apiKey)=>{
+
+
+                            //Store User Device
+
+                                //Answer Request
+                                res.send(`{"success":"${apiKey}"}`);
+
+
+                            })
+
+
+
+
+                    }else{
+                        res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+
+                    }
+
+                })
+
+            }else{
+                res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+
+            }
+        })
+    }else{
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+    }
+
+})
 
   app.get('/device/getDeviceConfig',(req,res)=>{
  
