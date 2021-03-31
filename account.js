@@ -12,8 +12,7 @@ var account = {
         var sql = `SELECT * FROM account WHERE name = ?;`;
         global.connection.query(sql, [name.toString()],function (err, result) {
           if(result[0]) {
-            console.log(result[0]);
-      
+
             res.send('{\"error\":\"Username already exists\",\"errorcode\":\"004\"}');
       
           }else{
@@ -33,7 +32,6 @@ var account = {
 
         var sql = `SELECT * FROM account WHERE (name=? OR email=?) AND password=?`;
         global.connection.query(sql,[nameOrEmail,nameOrEmail,pw_hash], function (err, result) {
-            console.log(result);
             if(result&&result[0]) {
              
                res.send(`{\"info\":\"loged in\",\"session\":\"${session.startsession(result[0].uuid)}\"}`)
@@ -53,7 +51,6 @@ var account = {
       },
 
       getAccountByUUID: function(uuid,callback) {
-        console.log(uuid);
         var sql = `SELECT uuid,name,created_at,installedApps FROM account WHERE uuid = ?;`;
         global.connection.query(sql, [uuid.toString()],function (err, result) {
 

@@ -36,7 +36,6 @@ var session ={
       getUserUUID: function(session,callback) {
 
 
-          console.log("input: "+ session)
         var sql = `SELECT user FROM session WHERE uuid='${session}';`;
         global.connection.query(sql, function (err, result) {
           
@@ -74,7 +73,6 @@ var session ={
         var sql = `SELECT 'UUID' FROM session WHERE uuid = ?;`;
 
         global.connection.query(sql,[session.toString()], function (err, result) {
-          console.log(result);
           if(result&&result[0]) {
            res.send("{\"success\": true}")
       
@@ -95,7 +93,6 @@ var session ={
         var sql = `SELECT * FROM session WHERE uuid = '${session.toString()}';`;
 
         global.connection.query(sql, function (err, result) {
-          console.log(result);
           if(result&&result[0]) {
            callback(true)
       

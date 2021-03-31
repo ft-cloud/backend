@@ -26,7 +26,6 @@ var device = {
         global.connection.query(sql,[deviceUUID], function(err, result){
 
             if(result&&result[0]){
-                console.log(result[0])
                 callback(result[0].config)
 
             }else{
@@ -53,8 +52,7 @@ var device = {
     updateDeviceConfig: function(deviceuuid, config, callback){
         var sql = `UPDATE deviceData SET config = ? WHERE UUID = ?`
          global.connection.query(sql, [config,deviceuuid],function (err, result) {
-            console.log(err);
-            console.log(result);
+
             callback();
 
          })
@@ -95,8 +93,7 @@ var device = {
 
         var sql = `DELETE FROM session WHERE usedBy = ?`
         global.connection.query(sql,[deviceuuid], function (err, result) {
-           console.log(err);
-           console.log(result);
+
            callback();
 
 
@@ -106,12 +103,11 @@ var device = {
     },
 
     getDeviceUUID: function(session,callback) {
-        console.log(session)
+
 
         var sql = `SELECT usedBy FROM session WHERE uuid = ?`
         global.connection.query(sql,[session], function (err, result) {
-           console.log(err);
-           console.log(result);
+
            if(result[0]!=undefined) {
            callback(result[0].usedBy);
            }else{
@@ -128,8 +124,7 @@ var device = {
 
         var sql = `SELECT online FROM deviceData WHERE uuid = ?`
         global.connection.query(sql,[deviceuuid], function (err, result) {
-           console.log(err);
-           console.log(result);
+
            if(result[0]!=undefined) {
            callback(result[0].online);
            }else{
@@ -146,8 +141,7 @@ var device = {
 
         var sql = `UPDATE deviceData SET online = ? WHERE uuid = ?`
         global.connection.query(sql,[state,deviceuuid], function (err, result) {
-           console.log(err);
-           console.log(result);
+
            callback();
 
 

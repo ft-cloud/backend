@@ -281,7 +281,6 @@ app.get('/app/getAppScores', (req, res) =>{
 
             apps.getScores(req.query.appuuid,uuid, (scors) => {
 
-                console.log(scors)
                   res.send(JSON.stringify(scors));
 
 
@@ -310,7 +309,6 @@ app.get('/app/getAppScores', (req, res) =>{
 app.get('/app/saveAppScore',(req,res)=>{
 
 if(req.query.session && req.query.scoreuuid && req.query.params){
-  console.log(req.query.params)
     session.validateSession2(req.query.session.toString(),(isValid) => {
       if(isValid) {
         session.reactivateSession(req.query.session);
@@ -356,7 +354,6 @@ if(req.query.session && req.query.scoreuuid && req.query.params){
 app.get('/app/deleteAppScore',(req,res)=>{
 
   if(req.query.session && req.query.scoreuuid){
-    console.log(req.query.params)
       session.validateSession2(req.query.session.toString(),(isValid) => {
         if(isValid) {
           session.reactivateSession(req.query.session);
@@ -570,7 +567,7 @@ app.get('/device/getRegistrationCode',(req,res) => {
         const random = Math.floor(Math.random() * 16383); //Because this is in bin 14 length
         if (!registrationCodes.includes(random)) {
             regCode = random;
-            console.log(regCode);
+            console.log("Reg Code is: "+regCode);
             registrationCodes.push(regCode)
             break;
         }
@@ -578,7 +575,7 @@ app.get('/device/getRegistrationCode',(req,res) => {
 
     }
     if(counter>199) {
-      res.send("something went wrong (No API Keys available)");
+      res.send("something went wrong (No Registration Keys available)");
 
 
     }
@@ -832,7 +829,6 @@ app.get('/app/removeWriteScore',(req,res)=>{
 app.get('/device/deleteDevice',(req,res)=>{
 
   if(req.query.session && req.query.deviceuuid){
-    console.log(req.query.params)
       session.validateSession2(req.query.session.toString(),(isValid) => {
         if(isValid) {
           session.reactivateSession(req.query.session);
@@ -954,7 +950,6 @@ app.get('/device/deleteDevice',(req,res)=>{
                           apps: appuuid
                         }
                         ws.send(packWSContent("syncApps",JSON.stringify(tempObj)));        
-                        console.log(packWSContent("syncApps",JSON.stringify(tempObj)))
                       }
       
                      })

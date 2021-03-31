@@ -71,7 +71,6 @@ module.exports = {
     },
 
     getScores: function(appuuid,user,callback) {
-        console.log(appuuid);
 
         const sql_getScores = ' SELECT name,uuid FROM score s, readScoreAccess r WHERE (r.score=s.uuid) AND  (s.app=?) AND (r.user=?)'
         global.connection.query(sql_getScores,[appuuid.toString(),user.toString()], function(err, resultRead){
@@ -138,11 +137,8 @@ module.exports = {
     },
 
     updateScore: function(scoreuuid, data, callback){
-        console.log(data)
         var sql = `UPDATE score SET data = ? WHERE UUID = ?`
          global.connection.query(sql, [data,scoreuuid],function (err, result) {
-            console.log(err);
-            console.log(result);
             callback();
 
 
@@ -173,7 +169,6 @@ module.exports = {
             var rawinstalledapps=JSON.parse(user.installedApps);
             var output = [];
             counter = 0;
-            console.log(rawinstalledapps.installedApps)
             if(rawinstalledapps.installedApps===undefined||!rawinstalledapps) {
                 callback(undefined)
                 return;
@@ -225,9 +220,7 @@ module.exports = {
 
             const sql_getCompatibleApps = `SELECT compatibleApps FROM device WHERE UUID = ?`
             global.connection.query(sql_getCompatibleApps,[deviceuuid],function(err,resultApps) {
-                console.log("deviceTyp")
 
-                console.log(deviceuuid)
                 if(resultApps&&resultApps[0]) {
                     const comApps = JSON.parse(resultApps[0].compatibleApps)
                 
@@ -332,12 +325,10 @@ module.exports = {
         global.connection.query(sql_getReadScores,[useruuid.toString(),scoreuuid.toString()], function(err, result){
             if (err) throw err;
 
-            console.log("work")
          if(!result[0]) {
              callback(false);
              return;
          }
-            console.log("work2")
 
 
         var sql_write=`DELETE FROM readScoreAccess WHERE user = ? AND score = ?`;
