@@ -910,6 +910,41 @@ app.get('/device/deleteDevice',(req,res)=>{
     })
 
 
+app.get('/app/getData',(req,res)=>{
+
+    if(req.query.session && req.query.appuuid){
+        session.validateSession2(req.query.session.toString(),(isValid) => {
+            if(isValid) {
+                session.reactivateSession(req.query.session);
+                session.getUserUUID(req.query.session.toString(),(uuid)=> {
+                    if(uuid) {
+
+
+                        apps.getAppData(req.query.appuuid,(result)=> {
+
+                            res.send(`{"success":true,"data":${JSON.stringify(result)}}`);
+                        })
+
+
+
+                    }else{
+                        res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}' )
+                    }
+                })
+
+            }else{
+                res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}')
+
+            }
+        })
+    }else{
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}')
+
+    }
+})
+
+
+
     function packWSContent(message,content) {
 
       const jsonOutput = `{"message": "${message}","content": ${content}}`;

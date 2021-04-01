@@ -378,6 +378,17 @@ module.exports = {
     })
 
 
+    },
+
+
+    getAppData: function(appuuid,callback) {
+        var sql=`SELECT * FROM application WHERE uuid = ?;`;
+        global.connection.query(sql,[appuuid], function(err, result){
+            if (err) throw err;
+            callback(result[0]);
+        })
+
+
     }
 
 }
