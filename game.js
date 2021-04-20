@@ -6,7 +6,7 @@ var apps = require('./app');
 module.exports.init = function initGameFunctions() {
     app.get('/game/app/setDefaultScore', (req, res) => {
         if (req.query.session && req.query.scoreuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -40,7 +40,7 @@ module.exports.init = function initGameFunctions() {
 
     app.get('/game/app/listinstalled', (req, res) => {
         if (req.query.session) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -74,7 +74,7 @@ module.exports.init = function initGameFunctions() {
 
     app.get('/game/app/addScore', (req, res) => {
         if (req.query.session && req.query.name && req.query.appuuid && req.query.name.length > 3) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -103,7 +103,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/getScoreConfig', (req, res) => {
 
         if (req.query.session && req.query.scoreuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -149,7 +149,7 @@ module.exports.init = function initGameFunctions() {
 
     app.get('/game/app/getAppScores', (req, res) => {
         if (req.query.session && req.query.appuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -183,7 +183,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/saveAppScore', (req, res) => {
 
         if (req.query.session && req.query.scoreuuid && req.query.params) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -226,7 +226,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/deleteAppScore', (req, res) => {
 
         if (req.query.session && req.query.scoreuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -263,7 +263,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/getInstallURL', (req, res) => {
 
         if (req.query.session && req.query.appuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
 
@@ -288,7 +288,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/install', (req, res) => {
 
         if (req.query.session && req.query.appuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -319,7 +319,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/remove', (req, res) => {
 
         if (req.query.session && req.query.appuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -354,7 +354,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/removeReadScore', (req, res) => {
 
         if (req.query.session && req.query.scoreuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -388,7 +388,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/removeWriteScore', (req, res) => {
 
         if (req.query.session && req.query.scoreuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -423,7 +423,7 @@ module.exports.init = function initGameFunctions() {
     app.get('/game/app/getData', (req, res) => {
 
         if (req.query.session && req.query.appuuid) {
-            session.validateSession2(req.query.session.toString(), (isValid) => {
+            session.validateSession(req.query.session.toString(), (isValid) => {
                 if (isValid) {
                     session.reactivateSession(req.query.session);
                     session.getUserUUID(req.query.session.toString(), (uuid) => {

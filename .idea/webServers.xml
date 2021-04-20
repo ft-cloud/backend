@@ -3,16 +3,16 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="dbd26c38-7d68-481e-9784-bb1563614ac9" name="LEDWall" url="http://217.160.175.116/ledwall/src/">
-        <fileTransfer rootFolder="/home/ft/ledwall/backend" accessType="SFTP" host="217.160.175.116" port="22" sshConfigId="ff02b918-e101-40c5-b093-a1a33817c7f3" sshConfig="LEDWall">
+        <fileTransfer rootFolder="/home/ft/ledwall/backend" accessType="SFTP" sshConfigId="ff02b918-e101-40c5-b093-a1a33817c7f3" sshConfig="LEDWall">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>
       <webServer id="48a59531-45bb-47c9-8fef-e4c7f3fbda31" name="LEDWall API">
-        <fileTransfer rootFolder="/home/ft/" accessType="SFTP" host="23.102.1.212" port="22" sshConfigId="71f05de3-cfa6-4176-88b7-9f909aa3571f" sshConfig="LEDWallAPI">
+        <fileTransfer rootFolder="/home/ft/" accessType="SFTP" host="23.102.1.212" port="22" sshConfigId="71f05de3-cfa6-4176-88b7-9f909aa3571f" sshConfig="ft@23.102.1.212:22 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>

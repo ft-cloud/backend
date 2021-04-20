@@ -80,7 +80,16 @@ app.get('/auth/validateSession', (req, res) => {
 
 
     if (req.query.session) {
-        session.validateSession(req.query.session.toString(), res);
+        session.validateSession(req.query.session.toString(),(result)=> {
+            if (result) {
+                res.send("{\"success\": true}");
+
+            } else {
+
+                res.send("{\"success\": false}");
+
+            }
+        });
     } else {
         res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\",\"success\":false}');
     }
@@ -90,7 +99,7 @@ app.get('/auth/validateSession', (req, res) => {
 app.get('/account/info', (req, res) => {
 
     if (req.query.session) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -131,7 +140,7 @@ app.listen(port, () => {
 app.get('/device/listAvailable', (req, res) => {
 
     if (req.query.session) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
 
@@ -159,7 +168,7 @@ app.get('/device/listAvailable', (req, res) => {
 app.get('/device/listSpecificUserDevice', (req, res) => {
 
     if (req.query.session && req.query.device) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -195,7 +204,7 @@ app.get('/device/listSpecificUserDevice', (req, res) => {
 app.get('/auth/addAPIKey', (req, res) => {
 
     if (req.query.session) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -234,7 +243,7 @@ app.get('/auth/addAPIKey', (req, res) => {
 app.get('/device/getDeviceConfig', (req, res) => {
 
     if (req.query.session && req.query.device) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -334,7 +343,7 @@ app.get('/device/registerByCode', (req, res) => {
     if (req.query.regCode && req.query.session) {
 
 
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -398,7 +407,7 @@ app.get('/device/registerByCode', (req, res) => {
 app.get('/device/deleteDevice', (req, res) => {
 
     if (req.query.session && req.query.deviceuuid) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -443,7 +452,7 @@ app.get('/device/deleteDevice', (req, res) => {
 app.get('/device/saveConfig', (req, res) => {
 
     if (req.query.session && req.query.deviceuuid && req.query.params) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -490,7 +499,7 @@ app.ws('/device/liveconnection', function (ws, req) {
 
 
     if (req.query.session) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
@@ -570,7 +579,7 @@ app.ws('/device/liveconnection', function (ws, req) {
 
 app.get('/device/listinstalledcompatibleapps', (req, res) => {
     if (req.query.deviceuuid && req.query.session) {
-        session.validateSession2(req.query.session.toString(), (isValid) => {
+        session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
                 session.reactivateSession(req.query.session);
                 session.getUserUUID(req.query.session.toString(), (uuid) => {

@@ -67,27 +67,9 @@ var session = {
 
 
     },
-    validateSession: function (session, res) {
-
-        var sql = `SELECT 'UUID' FROM session WHERE uuid = ?;`;
-
-        global.connection.query(sql, [session.toString()], function (err, result) {
-            if (result && result[0]) {
-                res.send("{\"success\": true}");
-
-            } else {
-
-                res.send("{\"success\": false}");
-
-            }
 
 
-        });
-
-
-    },
-
-    validateSession2: function (session, callback) {
+    validateSession: function (session, callback) {
 
         var sql = `SELECT * FROM session WHERE uuid = '${session.toString()}';`;
 
