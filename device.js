@@ -37,6 +37,24 @@ var device = {
 
     },
 
+    checkUserDeviceAccessPermission: function (useruuid, deviceuuid) {
+        return new Promise(function (resolve, reject) {
+            var sql = `SELECT *
+                       FROM userDeviceAccess
+                       WHERE user = ?
+                         AND device = ?`;
+
+            global.connection.query(sql, [useruuid, deviceuuid], function (err, result) {
+
+                resolve(result && result[0]);
+
+            });
+
+        });
+
+    },
+
+
     storeUserDevices: function (userDeviceUUID, userUUID, deviceUUID, callback) {
         if (!userDeviceUUID) callback(undefined);
         var sql_addDevicePermission = `INSERT INTO userDeviceAccess (user, device, deviceType)
@@ -198,6 +216,31 @@ var device = {
 
         });
 
+
+    },
+
+    updateStatusInfo: function (device, key, value, callback) {
+        var sql = `SELECT statusInfo
+                   FROM deviceData
+                   WHERE (uuid = ?)`
+        global.connection.query(sql, [device], function (err, result) {
+            console.log(result[0])
+            var statusInfoJson = JSON.parse(result[0].statusInfo)
+            console.log(value);
+            statusInfoJson[String(key)] = String(value);
+            var setSQL = `UPDATE deviceData
+                          SET statusInfo = ?
+                          WHERE uuid = ?`
+            console.log(JSON.stringify(statusInfoJson))
+            global.connection.query(setSQL, [JSON.stringify(statusInfoJson),device], function (err, SETresult) {
+                console.log(SETresult)
+                callback();
+
+
+            });
+
+
+        });
 
     }
 

@@ -1,4 +1,3 @@
-
 var mysql = require('mysql');
 var express = require('express');
 var uuid = require('uuid');
@@ -7,7 +6,7 @@ var session = require('./session');
 var apps = require('./app');
 var cors = require('cors');
 const {deleteScore} = require('./app');
- var app = express();
+var app = express();
 module.exports.app = app;
 const port = 8146;
 var game = require('./game.js');
@@ -80,7 +79,7 @@ app.get('/auth/validateSession', (req, res) => {
 
 
     if (req.query.session) {
-        session.validateSession(req.query.session.toString(),(result)=> {
+        session.validateSession(req.query.session.toString(), (result) => {
             if (result) {
                 res.send("{\"success\": true}");
 
@@ -127,7 +126,6 @@ app.get('/account/info', (req, res) => {
     }
 
 });
-
 
 
 game.init();
@@ -249,13 +247,67 @@ app.get('/device/getDeviceConfig', (req, res) => {
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
                     if (uuid) {
 
-                        device.getDeviceConfig(uuid, req.query.device.toString(), (devices) => {
-                            if (devices) {
-                                res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                        device.checkUserDeviceAccessPermission(uuid, req.query.device).then((result) => {
+
+                            if (result) {
+
+                                device.getDeviceConfig(uuid, req.query.device.toString(), (devices) => {
+                                    if (devices) {
+                                        res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                                    } else {
+                                        res.send(`{"success":false}`);
+                                    }
+                                });
                             } else {
-                                res.send(`{"success":false}`);
+                                res.send('{\"error\":\"No device permission!\",\"errorcode\":\"011\"}');
                             }
+
                         });
+
+
+                    } else {
+                        res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                    }
+
+                });
+
+            } else {
+                res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+            }
+        });
+    } else {
+        res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+    }
+
+});
+
+
+app.get('/device/changeStatusInfo', (req, res) => {
+
+    if (req.query.session && req.query.device && req.query.infokey && req.query.value) {
+        session.validateSession(req.query.session.toString(), (isValid) => {
+            if (isValid) {
+                session.reactivateSession(req.query.session);
+                session.getUserUUID(req.query.session.toString(), (uuid) => {
+                    if (uuid) {
+
+                        device.checkUserDeviceAccessPermission(uuid, req.query.device).then((result) => {
+
+                            if (result) {
+                                device.updateStatusInfo(req.query.device, req.query.infokey, req.query.value, () => {
+                                    res.send(`{"success":true}`);
+
+                                });
+
+                            } else {
+                                res.send('{\"error\":\"No device permission!\",\"errorcode\":\"011\"}');
+
+                            }
+
+                        });
+
 
                     } else {
                         res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
@@ -403,7 +455,6 @@ app.get('/device/registerByCode', (req, res) => {
 });
 
 
-
 app.get('/device/deleteDevice', (req, res) => {
 
     if (req.query.session && req.query.deviceuuid) {
@@ -413,23 +464,32 @@ app.get('/device/deleteDevice', (req, res) => {
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
                     if (uuid) {
 
+                        device.checkUserDeviceAccessPermission(uuid,req.query.deviceuuid).then((result)=> {
+                            if(result) {
 
-                        device.deleteDeviceConnection(req.query.deviceuuid, (result) => {
-                            if (result) {
-                                device.deleteAPIKey(req.query.deviceuuid, () => {
-                                    try {
-                                        if (liveDeviceConnection.get(req.query.deviceuuid))
-                                            liveDeviceConnection.get(req.query.deviceuuid).close();
-                                    } catch (e) {
+                                device.deleteDeviceConnection(req.query.deviceuuid, (result) => {
+                                    if (result) {
+                                        device.deleteAPIKey(req.query.deviceuuid, () => {
+                                            try {
+                                                if (liveDeviceConnection.get(req.query.deviceuuid))
+                                                    liveDeviceConnection.get(req.query.deviceuuid).close();
+                                            } catch (e) {
+                                            }
+                                            liveDeviceConnection.delete(req.query.deviceuuid);
+
+                                            res.send('{\"success\":\"true\"}');
+                                        });
+                                    } else {
+                                        res.send('{\"error\":\"No write Permission\",\"errorcode\":\"009\"}');
                                     }
-                                    liveDeviceConnection.delete(req.query.deviceuuid);
-
-                                    res.send('{\"success\":\"true\"}');
                                 });
-                            } else {
-                                res.send('{\"error\":\"No write Permission\",\"errorcode\":\"009\"}');
+
+
+                            }else{
+                                res.send('{\"error\":\"No device permission!\",\"errorcode\":\"011\"}');
                             }
-                        });
+                        })
+
 
 
                     } else {
@@ -458,14 +518,27 @@ app.get('/device/saveConfig', (req, res) => {
                 session.getUserUUID(req.query.session.toString(), (uuid) => {
                     if (uuid) {
 
+                        device.checkUserDeviceAccessPermission(uuid,req.query.deviceuuid).then((result) => {
 
-                        device.updateDeviceConfig(req.query.deviceuuid, req.query.params, () => {
-                            if (liveDeviceConnection.has(req.query.deviceuuid)) {
-                                liveDeviceConnection.get(req.query.deviceuuid).send(packWSContent("configChange", `${req.query.params}`));
-                            }
-                            res.send('{\"success\":\"Updated Settings\"}');
+                           if(result) {
+
+                               device.updateDeviceConfig(req.query.deviceuuid, req.query.params, () => {
+                                   if (liveDeviceConnection.has(req.query.deviceuuid)) {
+                                       liveDeviceConnection.get(req.query.deviceuuid).send(packWSContent("configChange", `${req.query.params}`));
+                                   }
+                                   res.send('{\"success\":\"Updated Settings\"}');
+
+                               });
+                           }else{
+                               res.send('{\"error\":\"No device permission!\",\"errorcode\":\"011\"}');
+
+                           }
+
 
                         });
+
+
+
 
 
                     } else {
@@ -483,8 +556,6 @@ app.get('/device/saveConfig', (req, res) => {
 
     }
 });
-
-
 
 
 function packWSContent(message, content) {

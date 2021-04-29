@@ -8,3 +8,4 @@ Invalid Score 007
 No read Permission 008
 No write Permission 009
 No valid registration code 010
+No device Permission 011
