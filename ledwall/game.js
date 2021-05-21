@@ -1,9 +1,8 @@
 var app = require('../index.js').app;
-var account = require('../account');
-var session = require('../session');
-var apps = require('../app');
+var session = require('../account/session');
+var apps = require('./app');
 
-module.exports.init = function initGameFunctions() {
+module.exports.init = function initGamePaths() {
     app.get('/game/app/setDefaultScore', (req, res) => {
         if (req.query.session && req.query.scoreuuid) {
             session.validateSession(req.query.session.toString(), (isValid) => {

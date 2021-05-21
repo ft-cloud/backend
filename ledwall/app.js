@@ -1,4 +1,4 @@
-const account = require('./account');
+const account = require('../account/account');
 const apps = require('./app.js');
 var uuid = require('uuid');
 var currentWriteDelete;
