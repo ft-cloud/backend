@@ -1,7 +1,7 @@
-var app = require('./index.js').app;
-var account = require('./account');
-var session = require('./session');
-var apps = require('./app');
+var app = require('../index.js').app;
+var account = require('../account');
+var session = require('../session');
+var apps = require('../app');
 
 module.exports.init = function initGameFunctions() {
     app.get('/game/app/setDefaultScore', (req, res) => {

@@ -9,7 +9,7 @@ const {deleteScore} = require('./app');
 var app = express();
 module.exports.app = app;
 const port = 8146;
-var game = require('./game.js');
+var game = require('./ledwall/game.js');
 var device = require('./device');
 const rateLimit = require("express-rate-limit");
 
