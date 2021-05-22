@@ -23,6 +23,8 @@ global.connection = mysql.createConnection({
     database: "cloud"
 });
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const limiter = rateLimit({
     windowMs: 1 * 10 * 1000, // 15 minutes
@@ -190,41 +192,6 @@ app.get('/device/listinstalledcompatibleapps', (req, res) => {
 });
 
 
-function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
-
-function validateSignUp(name, email, password) {
-
-    if (name && password && email) {
-        if (name.toString().trim() != '' && password.toString().trim() != '' && email.toString().trim() != '') {
-            if (validateEmail(email.toString())) {
-
-                if (name.toString().trim().length >= 3) {
-
-
-                    return undefined;
-
-                } else {
-                    return '{\"error\":\"Username must contain at least 3 Characters\",\"errorcode\":\"002\"}';
-
-                }
-
-
-            } else {
-                return '{\"error\":\"No valid email!\",\"errorcode\":\"002\"}';
-            }
-
-        } else {
-            return '{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}';
-
-        }
-
-    } else {
-        return '{\"error\":\"please provide name, password and email!\",\"errorcode\":\"001\"}';
-    }
-}
 
 
 app.use(function (req, res, next) {

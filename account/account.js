@@ -101,10 +101,10 @@ function checkUserEmailExisting(email, res, req) {
 }
 
 function createUser(req, res) {
-    const pw_hash = crypto.createHmac('sha256', hashingSecret).update(req.query.password.toString()).digest('hex');
+    const pw_hash = crypto.createHmac('sha256', hashingSecret).update(req.body.password.toString()).digest('hex');
 
     const user = uuid.v4();
-    var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.query.email.toString()}','${pw_hash}','${req.query.name.toString()}')`;
+    var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.body.email.toString()}','${pw_hash}','${req.body.name.toString()}')`;
     global.connection.query(sql, function (err, result) {
         if (err) throw err;
     });
