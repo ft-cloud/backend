@@ -6,6 +6,9 @@ var app = express();
 module.exports.app = app;
 const port = 8146;
 
+const drone = require('./drone/drone.js');
+
+
 var game = require('./ledwall/game.js');
 var account = require('./account/accountHandler.js');
 var session = require('./account/sessionHandler.js');
@@ -46,7 +49,7 @@ app.get('/v2', (req, res) => {
 
 
 
-
+drone.init();
 game.init();
 account.init();
 session.init();
