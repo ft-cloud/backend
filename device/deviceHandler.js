@@ -2,6 +2,7 @@ var app = require('../index.js').app;
 var account = require('../account/account');
 var session = require('../account/session');
 var apps = require('../ledwall/app');
+var device = require('./device');
 
 module.exports.init = function initDevicePaths() {
 

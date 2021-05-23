@@ -12,6 +12,7 @@ const drone = require('./drone/drone.js');
 var game = require('./ledwall/game.js');
 var account = require('./account/accountHandler.js');
 var session = require('./account/sessionHandler.js');
+var deviceHandler = require('./device/deviceHandler.js');
 var device = require('./device/device');
 const rateLimit = require("express-rate-limit");
 
@@ -48,7 +49,7 @@ app.get('/v2', (req, res) => {
 });
 
 
-
+deviceHandler.init();
 drone.init();
 game.init();
 account.init();
