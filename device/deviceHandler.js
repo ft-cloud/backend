@@ -249,7 +249,7 @@ module.exports.init = function initDevicePaths() {
                                         device.storeUserDevices(AddUuid, uuid, waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(), () => {
 
                                             //Answer Request
-                                            res.send('{\"success\":\"Registration done\"}');
+                                            res.send(`{"success":"Registration done","deviceType":"${waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString()}","uuid":"${AddUuid}"}`);
 
 
                                             //Remove Temp vars
