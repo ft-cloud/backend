@@ -71,6 +71,43 @@ module.exports.init = function initDevicePaths() {
     });
 
 
+    app.get('/device/getUserSpecificDeviceInfo', (req, res) => {
+
+        if (req.query.session && req.query.device) {
+            session.validateSession(req.query.session.toString(), (isValid) => {
+                if (isValid) {
+                    session.reactivateSession(req.query.session);
+                    session.getUserUUID(req.query.session.toString(), (uuid) => {
+                        if (uuid) {
+
+                            device.getUserSpecificDeviceInfo(uuid, req.query.device.toString(), (devices) => {
+
+                                if(devices.error) {
+                                    res.send(JSON.stringify(devices));
+                                }else{
+                                    res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                                }
+
+                            });
+
+                        } else {
+                            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                        }
+
+                    });
+
+                } else {
+                    res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+                }
+            });
+        } else {
+            res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+        }
+
+    });
+
 
 
     app.get('/device/getDeviceConfig', (req, res) => {

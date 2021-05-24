@@ -1,4 +1,5 @@
 var uuid = require('uuid');
+const admin = require("../account/account");
 
 var device = {
 
@@ -203,6 +204,76 @@ var device = {
     },
 
 
+    getUserSpecificDeviceInfo: function (useruuid, device, callback) {
+
+
+        admin.isUserAdmin(useruuid, (isAdmin) => {
+            if (isAdmin) {
+                var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
+                           FROM deviceData d
+                           WHERE (d.uuid = ?)`;
+                global.connection.query(sql, [device], function (err, result) {
+
+                    if (result[0] === undefined) {
+                        callback({
+                            error: true,
+                            errorMessage: "Device does not exist!"
+                        });
+                    } else {
+                        callback(result[0]);
+                    }
+
+
+                });
+            } else {
+
+                var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
+                           FROM deviceData d,
+                                userDeviceAccess u
+                           WHERE (d.uuid = u.device)
+                             AND (d.uuid = ?)
+                             AND (u.user = ?)`;
+                global.connection.query(sql, [device, useruuid], function (err, result) {
+
+
+                    if (result[0] === undefined) {
+
+                        var sqlCheckExist = `SELECT name FROM deviceData d WHERE(d.uuid = ?)`;
+                        global.connection.query(sqlCheckExist, [device, useruuid], function (err, exist) {
+
+
+                            if (exist[0] === undefined) {
+                                callback({
+                                    error: true,
+                                    errorMessage: "Device does not exist!"
+                                });
+
+                            }else{
+                                callback({
+                                    error: true,
+                                    errorMessage: "No Access!"
+                                });
+
+                            }
+
+                        });
+
+
+                    }else{
+                        callback(result[0]);
+
+                    }
+
+                });
+
+            }
+
+        });
+
+
+    },
+
+
     listSpecificDevice: function (uuid, device, callback) {
         var sql = `SELECT name, uuid, config, deviceUUID, online
                    FROM deviceData d,
@@ -216,24 +287,23 @@ var device = {
 
         });
 
-
     },
 
     updateStatusInfo: function (device, key, value, callback) {
         var sql = `SELECT statusInfo
                    FROM deviceData
-                   WHERE (uuid = ?)`
+                   WHERE (uuid = ?)`;
         global.connection.query(sql, [device], function (err, result) {
-            console.log(result[0])
-            var statusInfoJson = JSON.parse(result[0].statusInfo)
+            console.log(result[0]);
+            var statusInfoJson = JSON.parse(result[0].statusInfo);
             console.log(value);
             statusInfoJson[String(key)] = String(value);
             var setSQL = `UPDATE deviceData
                           SET statusInfo = ?
-                          WHERE uuid = ?`
-            console.log(JSON.stringify(statusInfoJson))
-            global.connection.query(setSQL, [JSON.stringify(statusInfoJson),device], function (err, SETresult) {
-                console.log(SETresult)
+                          WHERE uuid = ?`;
+            console.log(JSON.stringify(statusInfoJson));
+            global.connection.query(setSQL, [JSON.stringify(statusInfoJson), device], function (err, SETresult) {
+                console.log(SETresult);
                 callback();
 
 

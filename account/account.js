@@ -52,6 +52,14 @@ var account = {
 
 
     },
+    isUserAdmin: function(uuid,callback) {
+
+        var sql = `SELECT admin FROM account WHERE uuid = ?`;
+        global.connection.query(sql,[uuid],function(err,result) {
+            callback(result[0].admin);
+        })
+
+    },
 
     getAccountByUUID: function (uuid, callback) {
         var sql = `SELECT uuid, name, created_at, installedApps
