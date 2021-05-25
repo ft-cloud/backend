@@ -109,6 +109,58 @@ module.exports.init = function initDevicePaths() {
     });
 
 
+    app.get('/device/changeDeviceName', (req, res) => {
+
+        if (req.query.session && req.query.device && req.query.newName) {
+            if(req.query.newName.toString().length<4&&req.query.newName.toString().length>49) {
+                res.send(`{"success":false,"error":"String too long"}`);
+                return;
+            }
+            session.validateSession(req.query.session.toString(), (isValid) => {
+                if (isValid) {
+                    session.reactivateSession(req.query.session);
+                    session.getUserUUID(req.query.session.toString(), (uuid) => {
+                        if (uuid) {
+
+                            device.getUserSpecificDeviceInfo(uuid, req.query.device.toString(), (devices) => {
+
+                                if(devices.error) {
+                                    res.send(JSON.stringify(devices));
+                                }else{
+                                    device.changeDeviceName(req.query.device,req.query.newName,(result) => {
+                                        if(result) {
+                                            res.send(`{"success":true}`)
+                                        }else{
+                                            res.send(`{"success":false}`)
+
+                                        }
+                                    });
+
+
+                                }
+
+                            });
+
+                        } else {
+                            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                        }
+
+                    });
+
+                } else {
+                    res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+                }
+            });
+        } else {
+            res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+        }
+
+    });
+
+
+
 
     app.get('/device/getDeviceConfig', (req, res) => {
 

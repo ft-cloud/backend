@@ -273,6 +273,15 @@ var device = {
 
     },
 
+    changeDeviceName: function(deviceUUID,newName,callback) {
+        const sql = `UPDATE deviceData SET name = ? WHERE deviceData.uuid = ?;`
+        global.connection.query(sql, [newName, deviceUUID], function (err, result) {
+
+            callback(result);
+
+        });
+    },
+
 
     listSpecificDevice: function (uuid, device, callback) {
         var sql = `SELECT name, uuid, config, deviceUUID, online
