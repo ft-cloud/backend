@@ -38,14 +38,13 @@ const limiter = rateLimit({
 
 global.connection.connect();
 
+
 app.use(cors());
 
-app.get('/', (req, res) => {
-    res.send('LEDWall API V1.1');
-});
 
-app.get('/v2', (req, res) => {
-    res.send('LEDWall API V2.0');
+
+app.get('/', (req, res) => {
+    res.send('Ft-Cloud API V1.1');
 });
 
 
@@ -65,8 +64,7 @@ app.listen(port, () => {
 
 function packWSContent(message, content) {
 
-    const jsonOutput = `{"message": "${message}","content": ${content}}`;
-    return jsonOutput;
+    return `{"message": "${message}","content": ${content}}`;
 
 }
 
