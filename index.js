@@ -3,6 +3,9 @@ var express = require('express');
 var uuid = require('uuid');
 var cors = require('cors');
 var app = express();
+const fs = require('fs')
+const https = require('https')
+
 module.exports.app = app;
 const port = 8146;
 
@@ -28,7 +31,7 @@ global.connection = mysql.createConnection({
 });
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 
 const limiter = rateLimit({
     windowMs: 1 * 10 * 1000, // 15 minutes
@@ -38,15 +41,37 @@ const limiter = rateLimit({
 
 global.connection.connect();
 
+https
+    .createServer(
+        {
+            key: fs.readFileSync('/etc/letsencrypt/live/api.arnold-tim.de/privkey.pem'),
+            cert: fs.readFileSync('/etc/letsencrypt/live/api.arnold-tim.de/cert.pem'),
+            ca: fs.readFileSync('/etc/letsencrypt/live/api.arnold-tim.de/chain.pem'),
+        },
+        app
+    )
+    .listen(4430, () => {
+        console.log('Listening...')
+    })
 
 app.use(cors());
 
+app.use(function(request, response, next) {
 
+    if (!request.secure) {
+        return response.redirect("https://" + request.headers.host + request.url);
+    }
+
+    next();
+})
 
 app.get('/', (req, res) => {
     res.send('Ft-Cloud API V1.1');
 });
 
+app.get("/.well-known/acme-challenge/GInfZzaG2Zo3Yd9SCxaBALnWQASUCJ5bw5TdK37z3Qk", (req, res) => {
+    res.send("GInfZzaG2Zo3Yd9SCxaBALnWQASUCJ5bw5TdK37z3Qk.SBbeIJEYb1jSgPgjsFKBTdxIaLXTRcJ6-I_s5M-HHok");
+});
 
 deviceHandler.init();
 drone.init();
@@ -57,9 +82,6 @@ session.init();
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
-
-
-
 
 
 function packWSContent(message, content) {
@@ -192,8 +214,6 @@ app.get('/device/listinstalledcompatibleapps', (req, res) => {
         res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
     }
 });
-
-
 
 
 app.use(function (req, res, next) {
