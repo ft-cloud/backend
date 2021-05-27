@@ -407,11 +407,12 @@ module.exports.init = function initDevicePaths() {
                                         if (result) {
                                             device.deleteAPIKey(req.query.deviceuuid, () => {
                                                 try {
-                                                    if (liveDeviceConnection.get(req.query.deviceuuid))
+                                                    if (liveDeviceConnection.get(req.query.deviceuuid)) {
                                                         liveDeviceConnection.get(req.query.deviceuuid).close();
+                                                        liveDeviceConnection.delete(req.query.deviceuuid);
+                                                    }
                                                 } catch (e) {
                                                 }
-                                                liveDeviceConnection.delete(req.query.deviceuuid);
 
                                                 res.send('{\"success\":\"true\"}');
                                             });
