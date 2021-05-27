@@ -2,7 +2,7 @@ const Net = require('net');
 const port = 8856;
 var session = require('../account/session');
 var account = require('../account/account');
-
+var device = require('../device/device');
 
 module.exports.init = function init() {
 
@@ -36,6 +36,11 @@ module.exports.init = function init() {
         // When the client requests to end the TCP connection with the server, the server
         // ends the connection.
         socket.on('end', function () {
+            if(socket.auth) {
+                device.getDeviceUUID(socket.auth,(device) => {
+                    device.setOnlineState(0,device,() => {})
+                })
+            }
             console.log('Closing connection with the client');
         });
 
@@ -64,7 +69,7 @@ function checkCommand(actionString, socket) {
     let paramList = [];
     if(data.indexOf("=")!==-1) {
         containsParams = true;
-        let params = data.slice(1,data.length-1);
+        let params = data.slice(1,data.length);
         paramList = params.split(",");
     }
     console.log(containsParams)
@@ -75,9 +80,13 @@ function checkCommand(actionString, socket) {
     switch (command) {
         case 'key':
             if(!containsParams||paramList.length!==1) { sendSocketParamError(socket); return}
+            console.log(paramList[0])
             session.validateSession(paramList[0],(callback) => {
                 if(callback) {
                     socket.auth=paramList[0];
+                    device.getDeviceUUID(socket.auth,(deviceUUID) => {
+                        device.setOnlineState(1,deviceUUID,() => {})
+                    })
                     sendSocketOK(socket)
                 }else{
                     sendSocketAuthError(socket);

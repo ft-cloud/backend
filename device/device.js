@@ -133,13 +133,13 @@ var device = {
 
     },
 
-    getDeviceUUID: function (session, callback) {
+    getDeviceUUID: function (apiKey, callback) {
 
 
         var sql = `SELECT usedBy
                    FROM session
                    WHERE uuid = ?`;
-        global.connection.query(sql, [session], function (err, result) {
+        global.connection.query(sql, [apiKey], function (err, result) {
 
             if (result[0] != undefined) {
                 callback(result[0].usedBy);
