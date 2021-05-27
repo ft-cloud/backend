@@ -209,25 +209,8 @@ var device = {
     getUserSpecificDeviceInfo: function (useruuid, device, callback) {
 
 
-        admin.isUserAdmin(useruuid, (isAdmin) => {
-            if (isAdmin) {
-                var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
-                           FROM deviceData d
-                           WHERE (d.uuid = ?)`;
-                global.connection.query(sql, [device], function (err, result) {
-
-                    if (result[0] === undefined) {
-                        callback({
-                            error: true,
-                            errorMessage: "Device does not exist!"
-                        });
-                    } else {
-                        callback(result[0]);
-                    }
 
 
-                });
-            } else {
 
                 var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
                            FROM deviceData d,
@@ -251,10 +234,35 @@ var device = {
                                 });
 
                             }else{
-                                callback({
-                                    error: true,
-                                    errorMessage: "No Access!"
-                                });
+                                admin.isUserAdmin(useruuid, (isAdmin) => {
+                                    if (isAdmin) {
+                                        var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
+                                                    FROM deviceData d
+                                                    WHERE (d.uuid = ?)`;
+                                        global.connection.query(sql, [device], function (err, result) {
+
+                                            if (result[0] === undefined) {
+                                                callback({
+                                                    error: true,
+                                                    errorMessage: "Device does not exist!"
+                                                });
+                                            } else {
+                                                callback({
+                                                    content: result[0],
+                                                    admin: true
+                                                });
+                                            }
+
+
+                                        });
+                                    }else{
+                                        callback({
+                                            error: true,
+                                            errorMessage: "No Access!"
+                                        });
+                                    }
+                                })
+
 
                             }
 
@@ -262,15 +270,18 @@ var device = {
 
 
                     }else{
-                        callback(result[0]);
+                        callback({
+                            content: result[0],
+
+                        });
 
                     }
 
                 });
 
-            }
 
-        });
+
+
 
 
     },
