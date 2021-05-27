@@ -80,7 +80,28 @@ var account = {
         });
 
 
+    },
+    getAccountSettings: function (uuid, callback) {
+        var sql = `SELECT settings
+                   FROM account
+                   WHERE uuid = ?;`;
+        global.connection.query(sql, [uuid.toString()], function (err, result) {
+
+            if (result && result[0]) {
+                callback(result[0].settings);
+
+            } else {
+
+                callback(undefined);
+
+            }
+
+
+        });
+
+
     }
+
 
 
 };

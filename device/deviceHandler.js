@@ -326,6 +326,18 @@ module.exports.init = function initDevicePaths() {
                         if (uuid) {
 
                             if (registrationCodes.includes(Number.parseInt(req.query.regCode))) {
+                                if(waitForRegistrationDevices[req.query.regCode.toString()] === undefined) {
+
+                                    const indexOfCode = registrationCodes.indexOf(Number.parseInt(req.query.regCode));
+                                    if (indexOfCode > -1) registrationCodes.splice(indexOfCode, 1);
+
+                                    const indexOfRequest = waitForRegistrationDevices.indexOf(waitForRegistrationDevices[req.query.regCode.toString()]);
+                                    if (indexOfRequest > -1) registrationCodes.splice(indexOfRequest, 1);
+                                    res.send('{\"error\":\"No Device is waiting for this registration!\",\"errorcode\":\"010\"}');
+
+                                    return;
+
+                                }
 
                                 //Create Devices in Database
                                 device.createDeviceEntry(waitForRegistrationDevices[req.query.regCode.toString()].uuid.toString(), waitForRegistrationDevices[req.query.regCode.toString()].name.toString(), (AddUuid) => {
