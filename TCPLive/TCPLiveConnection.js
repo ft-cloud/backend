@@ -3,44 +3,41 @@ const port = 8856;
 var session = require('../account/session');
 var account = require('../account/account');
 var device = require('../device/device');
+const liveDevices = [];
 
 module.exports.init = function init() {
 
     const server = new Net.Server();
     server.listen(port, function () {
-        console.log(`Server listening for drone connection requests on socket localhost:${port}`);
+        console.log(`Server listening for device connection requests on socket localhost:${port}`);
     });
 
     server.on('connection', function (socket) {
-        console.log('A Drone has Connected to the server. Waiting for authentication!');
+        console.log('A Device has Connected to the server. Waiting for authentication!');
+        socket.lastMessage = Date.now();
 
-        // Now that a TCP connection has been established, the server can send data to
-        // the client by writing to its socket.
         socket.write('ft+ready\n');
 
-        // The server can also receive data from the client by reading from its socket.
-        socket.on('data', function (chunk) {
-            console.log(`Data received from client: ${chunk.toString()}`);
-
-            if (chunk.toString().startsWith("ft+") && chunk.toString().endsWith("\n")) {
-                console.log(chunk.toString().slice(3, chunk.length - 1));
-                checkCommand(chunk.toString().slice(3, chunk.length - 1), socket);
-
-
-            } else {
-                console.log(`Unknown data received from client`);
-                socket.write('ft+error\n');
+        function checkConnection() {
+            if((Date.now()-socket.lastMessage)>=5000) {
+                socket.write("ft+timeout\n");
+                clearInterval(socket.interval);
+                terminateConnection(socket);
             }
+        }
+
+      //  socket.interval = setInterval(checkConnection,5000);
+
+        socket.on('data', function (chunk) {
+            socket.lastMessage =  Date.now();
+            console.log(`Data received from client: ${chunk.toString()}`);
+            checkIncomingMessage(chunk,socket)
         });
 
         // When the client requests to end the TCP connection with the server, the server
         // ends the connection.
         socket.on('end', function () {
-            if(socket.auth) {
-                device.getDeviceUUID(socket.auth,(device) => {
-                    device.setOnlineState(0,device,() => {})
-                })
-            }
+            terminateConnection(socket);
             console.log('Closing connection with the client');
         });
 
@@ -52,6 +49,19 @@ module.exports.init = function init() {
 
 };
 
+function checkIncomingMessage(message,socket)  {
+    if (message.toString().startsWith("ft+") && message.toString().endsWith("\n")) {
+        console.log(message.toString().slice(3, message.length - 1));
+        checkCommand(message.toString().slice(3, message.length - 1), socket);
+
+    } else {
+        console.log(`Unknown data received from client`);
+        socket.write('ft+error\n');
+    }
+
+}
+
+
 function sendSocketParamError(socket) {
     socket.write("ft+error=cpe\n")
 }
@@ -62,6 +72,23 @@ function sendSocketOK(socket) {
     socket.write("ft+ok\n")
 }
 
+function terminateConnection(socket) {
+    if(socket.auth) {
+        device.getDeviceUUID(socket.auth,(deviceUUID) => {
+            device.setOnlineState(0,deviceUUID,() => {})
+        })
+        liveDevices[socket.deviceUUID] = undefined;
+    }
+    socket.destroy();
+}
+
+function deleteDevice(socket) {
+    if(socket.auth) {
+        socket.write("ft+devicedelete\n");
+        terminateConnection(socket);
+    }
+}
+
 function checkCommand(actionString, socket) {
     const command = actionString.split(/\W+/g)[0];
     const data = actionString.slice(actionString.indexOf(command)+command.length,actionString.length);
@@ -69,7 +96,7 @@ function checkCommand(actionString, socket) {
     let paramList = [];
     if(data.indexOf("=")!==-1) {
         containsParams = true;
-        let params = data.slice(1,data.length);
+        let params = data.slice(1,data.length-1);
         paramList = params.split(",");
     }
     console.log(containsParams)
@@ -86,6 +113,9 @@ function checkCommand(actionString, socket) {
                     socket.auth=paramList[0];
                     device.getDeviceUUID(socket.auth,(deviceUUID) => {
                         device.setOnlineState(1,deviceUUID,() => {})
+                        liveDevices[deviceUUID] = socket;
+                        socket.deviceUUID = deviceUUID;
+
                     })
                     sendSocketOK(socket)
                 }else{
@@ -103,8 +133,8 @@ function checkCommand(actionString, socket) {
             break;
 
         case 'close':
+            terminateConnection(socket);
             socket.auth=undefined;
-            socket.destroy();
             break;
         case 'username':
             if(socket.auth) {
@@ -132,3 +162,7 @@ function checkCommand(actionString, socket) {
 
 
 }
+
+module.exports.liveDevices=liveDevices;
+module.exports.terminateConnection=terminateConnection;
+module.exports.deleteDevice=deleteDevice;

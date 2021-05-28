@@ -3,6 +3,7 @@ var account = require('../account/account');
 var session = require('../account/session');
 var apps = require('../ledwall/app');
 var device = require('./device');
+var TCPLiveConnection = require('../TCPLive/TCPLiveConnection');
 
 module.exports.init = function initDevicePaths() {
 
@@ -406,11 +407,19 @@ module.exports.init = function initDevicePaths() {
                                     device.deleteDeviceConnection(req.query.deviceuuid, (result) => {
                                         if (result) {
                                             device.deleteAPIKey(req.query.deviceuuid, () => {
+
+                                                console.log("hätte klappen müssen")
+                                                if(TCPLiveConnection.liveDevices[req.query.deviceuuid]!==undefined) {
+                                                    TCPLiveConnection.deleteDevice(TCPLiveConnection.liveDevices[req.query.deviceuuid]);
+                                                }
+
                                                 try {
-                                                    if (liveDeviceConnection.get(req.query.deviceuuid)) {
+                                                    if (liveDeviceConnection.get(req.query.deviceuuid)) { //<- Deprecated
                                                         liveDeviceConnection.get(req.query.deviceuuid).close();
                                                         liveDeviceConnection.delete(req.query.deviceuuid);
                                                     }
+
+
                                                 } catch (e) {
                                                 }
 

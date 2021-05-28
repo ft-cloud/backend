@@ -9,7 +9,7 @@ const https = require('https')
 module.exports.app = app;
 const port = 8146;
 
-const drone = require('./drone/drone.js');
+const drone = require('./TCPLive/TCPLiveConnection.js');
 
 
 var game = require('./ledwall/game.js');
