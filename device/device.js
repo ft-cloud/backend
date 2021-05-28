@@ -312,6 +312,8 @@ var device = {
     },
 
     updateStatusInfo: function (device, key, value, callback) {
+
+
         var sql = `SELECT statusInfo
                    FROM deviceData
                    WHERE (uuid = ?)`;
@@ -334,6 +336,18 @@ var device = {
 
         });
 
+    },
+
+    getStatusInfo: function(device) {
+        return new Promise((resolve,reject) => {
+
+            var SQL = `SELECT statusInfo FROM deviceData WHERE (uuid = ?)`
+            global.connection.query(SQL, [device], function (err,result) {
+               resolve(result[0].statusInfo);
+
+            })
+
+        })
     }
 
 

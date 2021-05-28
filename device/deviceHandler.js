@@ -252,6 +252,51 @@ module.exports.init = function initDevicePaths() {
 
     });
 
+    app.get('/device/getStatusInfo', (req, res) => {
+
+        if (req.query.session && req.query.deviceuuid) {
+            session.validateSession(req.query.session.toString(), (isValid) => {
+                if (isValid) {
+                    session.reactivateSession(req.query.session);
+                    session.getUserUUID(req.query.session.toString(), (uuid) => {
+                        if (uuid) {
+
+                            device.checkUserDeviceAccessPermission(uuid, req.query.deviceuuid).then((result) => {
+
+                                if (result) {
+                                    device.getStatusInfo(req.query.deviceuuid).then(r => {
+                                        res.send(`{"success":true,"data":${r}}`);
+
+                                    })
+
+
+
+                                } else {
+                                    res.send('{\"error\":\"No device permission!\",\"errorcode\":\"011\"}');
+
+                                }
+
+                            });
+
+
+                        } else {
+                            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                        }
+
+                    });
+
+                } else {
+                    res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+                }
+            });
+        } else {
+            res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+        }
+
+    });
+
 
     const registrationCodes = [];
     app.get('/device/getRegistrationCode', (req, res) => {

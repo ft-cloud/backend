@@ -16,10 +16,13 @@ var game = require('./ledwall/game.js');
 var account = require('./account/accountHandler.js');
 var session = require('./account/sessionHandler.js');
 var deviceHandler = require('./device/deviceHandler.js');
+var droneFrontendConnection = require('./drone/droneFrontendConnection.js');
 var device = require('./device/device');
 const rateLimit = require("express-rate-limit");
 
-var expressWs = require('express-ws')(app);
+
+
+
 const liveDeviceConnection = new Map();
 
 
@@ -41,7 +44,7 @@ const limiter = rateLimit({
 
 global.connection.connect();
 
-https
+const server = https
     .createServer(
         {
             key: fs.readFileSync('/etc/letsencrypt/live/api.arnold-tim.de/privkey.pem'),
@@ -54,6 +57,7 @@ https
         console.log('Listening...')
     })
 
+var expressWs = require('express-ws')(app,server);
 app.use(cors());
 
 app.use(function(request, response, next) {
@@ -78,6 +82,7 @@ drone.init();
 game.init();
 account.init();
 session.init();
+droneFrontendConnection.init();
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
@@ -93,7 +98,7 @@ function packWSContent(message, content) {
 
 app.ws('/device/liveconnection', function (ws, req) {
 
-
+    console.log("test")
     if (req.query.session) {
         session.validateSession(req.query.session.toString(), (isValid) => {
             if (isValid) {
