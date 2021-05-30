@@ -87,7 +87,7 @@ function initWS(ws) {
                 const i = parsedMsg.i;
                 const d = parsedMsg.d;
                 if(liveConnection.liveDevices[ws.deviceUUID]) {
-                    liveConnection.liveDevices[ws.deviceUUID].write(`ft+pid=${pidType},${p},${i},${d},${p + i + d}\n`)
+                    liveConnection.liveDevices[ws.deviceUUID].write(`ft+pid=${pidType},${p},${i},${d},${parseFloat(p) + parseFloat(i) + parseFloat(d)+pidType}\n`)
                 }
             }
         }
