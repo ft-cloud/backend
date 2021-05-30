@@ -27,7 +27,7 @@ module.exports.init = function init() {
             }
         }
 
-       // socket.interval = setInterval(checkConnection, 5000);
+        socket.interval = setInterval(checkConnection, 5000);
 
         socket.on('data', function (chunk) {
             socket.lastMessage = Date.now();
@@ -120,6 +120,7 @@ function spreadPosToDroneClients(device,lat, long, alt) {
     if(liveDroneClients[device]!==undefined) {
         liveDroneClients[device].forEach(client => {
             client.send(JSON.stringify({
+                type: "clientPos",
                 lat: lat,
                 long: long,
                 atl: alt
@@ -137,7 +138,7 @@ function checkCommand(actionString, socket) {
     let paramList = [];
     if (data.indexOf("=") !== -1) {
         containsParams = true;
-        let params = data.slice(1, data.length-1);
+        let params = data.slice(1, data.length);
         paramList = params.split(",");
     }
     console.log(containsParams);

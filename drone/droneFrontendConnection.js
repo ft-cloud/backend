@@ -1,6 +1,7 @@
 var session = require('../account/session');
 var account = require('../account/account');
 var device = require('../device/device');
+const {liveDevices} = require("../TCPLive/TCPLiveConnection");
 var app = require("../index").app;
 
 const droneLiveClients = [];
@@ -78,8 +79,18 @@ function initWS(ws) {
     });
 
     ws.on('message', function (msg) {
-
-
+        if(ws.deviceUUID) {
+            const parsedMsg = JSON.parse(msg);
+            if (parsedMsg.type === 'pid') {
+                const pidType = parsedMsg.pidType;
+                const p = parsedMsg.p;
+                const i = parsedMsg.i;
+                const d = parsedMsg.d;
+                if(liveDevices[ws.deviceUUID]) {
+                    liveDevices[ws.deviceUUID].write(`ft+pid=${pidType},${p},${i},${d},${p + i + d}\n`)
+                }
+            }
+        }
 
     });
 }
