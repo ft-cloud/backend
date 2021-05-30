@@ -1,7 +1,7 @@
 var session = require('../account/session');
 var account = require('../account/account');
 var device = require('../device/device');
-const {liveDevices} = require("../TCPLive/TCPLiveConnection");
+const liveConnection = require("../TCPLive/TCPLiveConnection");
 var app = require("../index").app;
 
 const droneLiveClients = [];
@@ -86,8 +86,8 @@ function initWS(ws) {
                 const p = parsedMsg.p;
                 const i = parsedMsg.i;
                 const d = parsedMsg.d;
-                if(liveDevices[ws.deviceUUID]) {
-                    liveDevices[ws.deviceUUID].write(`ft+pid=${pidType},${p},${i},${d},${p + i + d}\n`)
+                if(liveConnection.liveDevices[ws.deviceUUID]) {
+                    liveConnection.liveDevices[ws.deviceUUID].write(`ft+pid=${pidType},${p},${i},${d},${p + i + d}\n`)
                 }
             }
         }
