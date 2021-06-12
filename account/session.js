@@ -55,15 +55,21 @@ var session = {
     },
 
 
-    deleteSession: function (session, res) {
+    deleteSession: function (session) {
 
-        var sql = `delete from session where uuid='${session}'`;
+        return new Promise((resolve) => {
+            var sql = `delete from session where uuid='${session}'`;
 
-        global.connection.query(sql, function (err, result) {
-            if (err) throw err;
-            res.send(`{\"success\":\"loged out\"}`);
+            global.connection.query(sql, function (err, result) {
+                if (err) throw err;
 
-        });
+                resolve(`{\"success\":\"loged out\"}`);
+
+                //TODO return error when no session is available
+
+            });
+        })
+
 
 
     },

@@ -7,57 +7,67 @@ const session = require('./session');
 var account = {
 
 
-    checkAndCreateUser: function (name, email, res, req) {
+    checkAndCreateUser: function (name, email,password) {
 
-        var sql = `SELECT *
-                   FROM account
-                   WHERE name = ?;`;
-        global.connection.query(sql, [name.toString()], function (err, result) {
-            if (result[0]) {
+        return new Promise((resolve => {
 
-                res.send('{\"error\":\"Username already exists\",\"errorcode\":\"004\"}');
+            var sql = `SELECT *
+                       FROM account
+                       WHERE name = ?;`;
+            global.connection.query(sql, [name.toString()], function (err, result) {
+                if (result[0]) {
 
-            } else {
+                    resolve('{\"error\":\"Username already exists\",\"errorcode\":\"004\"}');
+                } else {
 
-                checkUserEmailExisting(email, res, req);
+                    checkUserEmailExisting(email, password, name).then((returnValue) => {
+                        resolve(returnValue);
+                    });
 
-            }
+                }
 
 
-        });
+            });
 
+
+        }));
     },
 
-    login: function (nameOrEmail, password, res) {
+    login: function (nameOrEmail, password) {
 
-        const pw_hash = crypto.createHmac('sha256', hashingSecret).update(password).digest('hex');
+        return new Promise(resolve => {
 
-        var sql = `SELECT *
+            const pw_hash = crypto.createHmac('sha256', hashingSecret).update(password).digest('hex');
+
+            var sql = `SELECT *
                    FROM account
                    WHERE (name = ? OR email = ?)
                      AND password = ?`;
-        global.connection.query(sql, [nameOrEmail, nameOrEmail, pw_hash], function (err, result) {
-            if (result && result[0]) {
+            global.connection.query(sql, [nameOrEmail, nameOrEmail, pw_hash], function (err, result) {
+                if (result && result[0]) {
 
-                res.send(`{\"info\":\"loged in\",\"session\":\"${session.startsession(result[0].uuid)}\"}`);
+                    resolve(`{\"info\":\"loged in\",\"session\":\"${session.startsession(result[0].uuid)}\"}`);
 
-            } else {
-                res.send('{\"error\":\"email or password incorrect\",\"errorcode\":\"003\"}');
-
-
-            }
+                } else {
+                    resolve('{\"error\":\"email or password incorrect\",\"errorcode\":\"003\"}');
 
 
-        });
+                }
 
+
+            });
+
+        })
 
     },
-    isUserAdmin: function(uuid,callback) {
+    isUserAdmin: function (uuid, callback) {
 
-        var sql = `SELECT admin FROM account WHERE uuid = ?`;
-        global.connection.query(sql,[uuid],function(err,result) {
+        var sql = `SELECT admin
+                   FROM account
+                   WHERE uuid = ?`;
+        global.connection.query(sql, [uuid], function (err, result) {
             callback(result[0].admin);
-        })
+        });
 
     },
 
@@ -103,40 +113,51 @@ var account = {
     }
 
 
-
 };
 
 module.exports = account;
 
 
-function checkUserEmailExisting(email, res, req) {
+function checkUserEmailExisting(email,password,name) {
 
-    var sql = `SELECT 1 FROM account WHERE email = '${email.toString()}';`;
+    return new Promise((resolve) => {
+        var sql = `SELECT 1
+                   FROM account
+                   WHERE email = '${email.toString()}';`;
 
-    global.connection.query(sql, function (err, result) {
-        if (err) throw err;
+        global.connection.query(sql, function (err, result) {
+            if (err) throw err;
 
-        if (result[0]) {
-            res.send('{\"error\":\"Email already exists\",\"errorcode\":\"005\"}');
+            if (result[0]) {
+                resolve('{\"error\":\"Email already exists\",\"errorcode\":\"005\"}')
+            } else {
+                createUser(password,name,email).then((returnValue) => {
+                    resolve(returnValue)
+                });
 
-        } else {
-            createUser(req, res);
 
-        }
+            }
 
 
-    });
+        });
+
+    })
 
 }
 
-function createUser(req, res) {
-    const pw_hash = crypto.createHmac('sha256', hashingSecret).update(req.body.password.toString()).digest('hex');
+function createUser(password,name,email) {
+    return new Promise((resolve) => {
 
-    const user = uuid.v4();
-    var sql = `INSERT INTO account (uuid,email,password,name) VALUES ('${user}', '${req.body.email.toString()}','${pw_hash}','${req.body.name.toString()}')`;
-    global.connection.query(sql, function (err, result) {
-        if (err) throw err;
-    });
+        const pw_hash = crypto.createHmac('sha256', hashingSecret).update(password.toString()).digest('hex');
 
-    res.send(`{\"success\":\"Account creating done\",\"session\":\"${session.startsession(user)}\"}`);
+        const user = uuid.v4();
+        var sql = `INSERT INTO account (uuid, email, password, name)
+                   VALUES ('${user}', '${email.toString()}', '${pw_hash}', '${name.toString()}')`;
+        global.connection.query(sql, function (err, result) {
+            if (err) throw err;
+        });
+        resolve(`{\"success\":\"Account creating done\",\"session\":\"${session.startsession(user)}\"}`)
+
+    })
+
 }

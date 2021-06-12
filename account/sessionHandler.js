@@ -10,7 +10,9 @@ module.exports.init = function initSessionPaths() {
         if (error) {
             res.send(error);
         } else {
-            account.checkAndCreateUser(req.body.name.toString(), req.body.email.toString(), res, req);
+            account.checkAndCreateUser(req.body.name.toString(), req.body.email.toString(),req.body.password.toString()).then((returnValue)=> {
+                res.send(returnValue);
+            });
 
         }
     });
@@ -19,7 +21,9 @@ module.exports.init = function initSessionPaths() {
     app.post('/auth/signin', (req, res) => {
 
         if (req.body.eorn && req.body.password) {
-            account.login(req.body.eorn.toString(), req.body.password.toString(), res);
+            account.login(req.body.eorn.toString(), req.body.password.toString()).then((returnValue) => {
+                res.send(returnValue);
+            });
         } else {
             res.send('{\"error\":\"please provide name or email and password!\",\"errorcode\":\"001\"}');
 
@@ -27,7 +31,10 @@ module.exports.init = function initSessionPaths() {
     });
     app.post('/auth/signout', (req, res) => {
         if (req.body.session) {
-            session.deleteSession(req.body.session.toString(), res);
+            //TODO check permission
+            session.deleteSession(req.body.session.toString()).then((returnValue) => {
+                res.send(returnValue);
+            });
         } else {
             res.send('{\"error\":\"please provide valid session!\",\"errorcode\":\"001\"}');
         }
