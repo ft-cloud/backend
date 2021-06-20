@@ -18,6 +18,7 @@ var session = require('./account/sessionHandler.js');
 var deviceHandler = require('./device/deviceHandler.js');
 var droneFrontendConnection = require('./drone/droneFrontendConnection.js');
 var device = require('./device/device');
+var searchHandler = require('./search/searchHandler');
 const rateLimit = require("express-rate-limit");
 
 
@@ -83,6 +84,7 @@ game.init();
 account.init();
 session.init();
 droneFrontendConnection.init();
+searchHandler.init();
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
