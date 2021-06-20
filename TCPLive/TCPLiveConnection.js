@@ -186,7 +186,7 @@ function checkCommand(actionString, socket) {
             if (socket.auth) {
                 session.getUserUUID(socket.auth, (result) => {
                     if (result !== undefined) {
-                        account.getAccountByUUID(result, (callback) => {
+                        account.getAccountByUUID(result).then( (callback) => {
                             if (socket.json) {
                                 socket.write(`{"result":"${callback.name}"}\n`);
                             } else {

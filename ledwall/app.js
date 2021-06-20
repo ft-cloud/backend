@@ -157,7 +157,7 @@ module.exports = {
     },
     listInstalledApps: function (user, callback) {
 
-        account.getAccountByUUID(user, (user) => {
+        account.getAccountByUUID(user).then((user) => {
 
             if (user == undefined) {
                 callback(undefined);
@@ -201,7 +201,7 @@ module.exports = {
 
 
     listInstalledCompatibleApps: function (user, deviceuuid, callback) {
-        account.getAccountByUUID(user, (user) => {
+        account.getAccountByUUID(user).then( (user) => {
 
 
             var rawinstalledapps = JSON.parse(user.installedApps);

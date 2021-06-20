@@ -60,35 +60,42 @@ var account = {
         })
 
     },
-    isUserAdmin: function (uuid, callback) {
-
-        var sql = `SELECT admin
+    isUserAdmin: function (uuid) {
+        return new Promise((resolve, reject) => {
+            var sql = `SELECT admin
                    FROM account
                    WHERE uuid = ?`;
-        global.connection.query(sql, [uuid], function (err, result) {
-            callback(result[0].admin);
-        });
+            global.connection.query(sql, [uuid], function (err, result) {
+                resolve(result[0].admin);
+            });
+        })
+
+
 
     },
 
-    getAccountByUUID: function (uuid, callback) {
-        var sql = `SELECT uuid, name, created_at, installedApps
+    getAccountByUUID: function (uuid) {
+        return new Promise((resolve, reject) => {
+
+            var sql = `SELECT uuid, name, created_at, installedApps
                    FROM account
                    WHERE uuid = ?;`;
-        global.connection.query(sql, [uuid.toString()], function (err, result) {
+            global.connection.query(sql, [uuid.toString()], function (err, result) {
 
-            if (result && result[0]) {
-                callback(result[0]);
+                if (result && result[0]) {
+                    resolve(result[0]);
 
-            } else {
+                } else {
 
-                callback(undefined);
+                    resolve(undefined);
 
-            }
+                }
 
 
-        });
+            });
 
+
+        })
 
     },
     getAccountSettings: function (uuid, callback) {

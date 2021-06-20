@@ -46,7 +46,7 @@ var device = {
                          AND device = ?`;
 
             global.connection.query(sql, [useruuid, deviceuuid], function (err, result) {
-                admin.isUserAdmin(useruuid,(isAdmin) =>{
+                admin.isUserAdmin(useruuid).then((isAdmin) =>{
                     resolve((result && result[0])||isAdmin);
 
                 })
@@ -234,7 +234,7 @@ var device = {
                                 });
 
                             }else{
-                                admin.isUserAdmin(useruuid, (isAdmin) => {
+                                admin.isUserAdmin(useruuid).then( (isAdmin) => {
                                     if (isAdmin) {
                                         var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
                                                     FROM deviceData d

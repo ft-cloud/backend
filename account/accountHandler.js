@@ -14,7 +14,7 @@ module.exports.init = function initAccountPaths() {
                     session.getUserUUID(req.query.session.toString(), (uuid) => {
 
                         if (uuid) {
-                            account.getAccountByUUID(uuid, (account) => {
+                            account.getAccountByUUID(uuid).then( (account) => {
                                 if (account) {
                                     res.send(JSON.stringify(account));
                                 } else {
