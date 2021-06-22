@@ -17,7 +17,7 @@ var search = {
                            AND deviceData.deviceUUID = device.UUID
                            AND ${search}`;
             console.log(sql)
-            global.connection.query(sql, [user].concat(values), function (err, result) {
+            global.connection.query(sql,[user].concat(values), function (err, result) {
                 resolve(result);
             });
 
@@ -56,7 +56,7 @@ function generateSearchSQL(searchString, ...columnnames) {
                 if (first) {
                     first = false;
                 } else {
-                    sql += " OR "
+                    sql += " AND "
                 }
                 sql += `${column} LIKE ?`
             }
