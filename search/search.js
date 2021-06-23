@@ -8,7 +8,8 @@ var search = {
                                 deviceData.name as "foundString",
                                 deviceData.uuid,
                                 deviceData.name,
-                                device.name
+                                device.name as "deviceTypeName",
+                                device.UUID as "deviceTypeUUID"
                          FROM device,
                               deviceData,
                               userDeviceAccess
@@ -29,7 +30,7 @@ var search = {
             const values = generateValues(searchString,Array("device.name"));
 
 
-            const sql = `SELECT DISTINCT "deviceType" as "resultType", device.name as "foundString", device.name, device.UUID
+            const sql = `SELECT DISTINCT "deviceType" as "resultType", device.name as "foundString", device.name as "deviceTypeName", device.UUID
                          FROM device
                          WHERE ${search}`;
             console.log(values)
