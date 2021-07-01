@@ -113,21 +113,34 @@ function deleteDevice(socket) {
     }
 }
 
-function spreadPosToDroneClients(device,lat, long, alt) {
-    console.log(liveDroneClients)
-    console.log(liveDroneClients[device])
-    console.log(device)
-    if(liveDroneClients[device]!==undefined) {
+function spreadPosToDroneClients(device, lat, long, alt) {
+    console.log(liveDroneClients);
+    console.log(liveDroneClients[device]);
+    console.log(device);
+    if (liveDroneClients[device] !== undefined) {
         liveDroneClients[device].forEach(client => {
             client.send(JSON.stringify({
                 type: "clientPos",
                 lat: lat,
                 long: long,
                 atl: alt
-            }))
+            }));
         });
     }
 
+}
+
+function spreadBatteryVoltageToDroneClients(device, voltage, percentage) {
+
+    if (liveDroneClients[device] !== undefined) {
+        liveDroneClients[device].forEach(client => {
+            client.send(JSON.stringify({
+                type: "voltage",
+                voltage: voltage,
+                percentage: percentage
+            }));
+        });
+    }
 
 }
 
@@ -186,7 +199,7 @@ function checkCommand(actionString, socket) {
             if (socket.auth) {
                 session.getUserUUID(socket.auth, (result) => {
                     if (result !== undefined) {
-                        account.getAccountByUUID(result).then( (callback) => {
+                        account.getAccountByUUID(result).then((callback) => {
                             if (socket.json) {
                                 socket.write(`{"result":"${callback.name}"}\n`);
                             } else {
@@ -213,7 +226,7 @@ function checkCommand(actionString, socket) {
                     sendSocketParamError(socket);
                     return;
                 }
-                const lat =  parseFloat(paramList[0]);
+                const lat = parseFloat(paramList[0]);
                 const long = parseFloat(paramList[1]);
                 const alt = parseFloat(paramList[2]);
                 device.updateStatusInfo(socket.deviceUUID, "lat", lat, () => {
@@ -221,11 +234,34 @@ function checkCommand(actionString, socket) {
                         device.updateStatusInfo(socket.deviceUUID, "alt", alt, () => {
                             sendSocketOK(socket);
 
-                            spreadPosToDroneClients(socket.deviceUUID,lat, long, alt);
+                            spreadPosToDroneClients(socket.deviceUUID, lat, long, alt);
                         });
 
                     });
                 });
+            } else {
+                sendSocketAuthError(socket);
+            }
+            break;
+        case 'battery':
+            if (socket.auth) {
+                if (!containsParams || paramList.length !== 2) {
+                    sendSocketParamError(socket);
+                    return;
+                }
+                const voltage = parseFloat(paramList[0]);
+                const percentage = parseFloat(paramList[1]);
+
+                device.updateStatusInfo(socket.deviceUUID, "batteryVoltage", voltage, () => {
+                    device.updateStatusInfo(socket.deviceUUID, "batteryPercentage", percentage, () => {
+
+                        sendSocketOK(socket);
+                        spreadBatteryVoltageToDroneClients(socket.deviceUUID, voltage, percentage);
+
+                    });
+                });
+
+
             } else {
                 sendSocketAuthError(socket);
             }

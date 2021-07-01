@@ -10,9 +10,9 @@
         </fileTransfer>
       </webServer>
       <webServer id="48a59531-45bb-47c9-8fef-e4c7f3fbda31" name="LEDWall API">
-        <fileTransfer rootFolder="/home/ft/" accessType="SFTP" host="23.102.1.212" port="22" sshConfigId="71f05de3-cfa6-4176-88b7-9f909aa3571f" sshConfig="ft@23.102.1.212:22 password">
+        <fileTransfer rootFolder="/home/ft/" accessType="SFTP" host="testingapi.arnold-tim.de" port="22" sshConfigId="71f05de3-cfa6-4176-88b7-9f909aa3571f" sshConfig="ft@testingapi.arnold-tim.de:22 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>
