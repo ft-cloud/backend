@@ -113,7 +113,7 @@ function deleteDevice(socket) {
     }
 }
 
-function spreadPosToDroneClients(device, lat, long, alt) {
+function spreadPosToDroneClients(device, lat, long, alt,ConStats) {
     console.log(liveDroneClients);
     console.log(liveDroneClients[device]);
     console.log(device);
@@ -123,7 +123,8 @@ function spreadPosToDroneClients(device, lat, long, alt) {
                 type: "clientPos",
                 lat: lat,
                 long: long,
-                atl: alt
+                atl: alt,
+                ConnectedSatellites: ConStats
             }));
         });
     }
@@ -222,21 +223,24 @@ function checkCommand(actionString, socket) {
             break;
         case 'pos':
             if (socket.auth) {
-                if (!containsParams || paramList.length !== 3) {
+                if (!containsParams || paramList.length !== 4) {
                     sendSocketParamError(socket);
                     return;
                 }
                 const lat = parseFloat(paramList[0]);
                 const long = parseFloat(paramList[1]);
                 const alt = parseFloat(paramList[2]);
+                const ConSats = parseFloat(paramList[3]);
                 device.updateStatusInfo(socket.deviceUUID, "lat", lat, () => {
                     device.updateStatusInfo(socket.deviceUUID, "long", long, () => {
                         device.updateStatusInfo(socket.deviceUUID, "alt", alt, () => {
+                        device.updateStatusInfo(socket.deviceUUID, "ConSats", ConSats, () => {
                             sendSocketOK(socket);
 
-                            spreadPosToDroneClients(socket.deviceUUID, lat, long, alt);
+                            spreadPosToDroneClients(socket.deviceUUID, lat, long, alt,ConSats);
                         });
 
+                    });
                     });
                 });
             } else {
