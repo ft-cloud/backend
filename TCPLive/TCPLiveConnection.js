@@ -132,7 +132,7 @@ function spreadPosToDroneClients(device, lat, long, alt,ConStats,height) {
                 type: "clientPos",
                 lat: lat,
                 long: long,
-                atl: alt,
+                alt: alt,
                 ConnectedSatellites: ConStats,
                 height:height
             }));
