@@ -97,6 +97,15 @@ function terminateConnection(socket) {
             device.setOnlineState(0, deviceUUID, () => {
             });
         });
+        if(liveDroneClients[socket.deviceUUID]) {
+            liveDroneClients[socket.deviceUUID].forEach(e => {
+                e.send(JSON.stringify({
+                    type: "clientStatusUpdate",
+                    onlineState: "Offline"
+                }))
+            });
+        }
+
         liveDevices[socket.deviceUUID] = undefined;
     }
     socket.destroy();
@@ -113,7 +122,7 @@ function deleteDevice(socket) {
     }
 }
 
-function spreadPosToDroneClients(device, lat, long, alt,ConStats) {
+function spreadPosToDroneClients(device, lat, long, alt,ConStats,height) {
     console.log(liveDroneClients);
     console.log(liveDroneClients[device]);
     console.log(device);
@@ -124,7 +133,8 @@ function spreadPosToDroneClients(device, lat, long, alt,ConStats) {
                 lat: lat,
                 long: long,
                 atl: alt,
-                ConnectedSatellites: ConStats
+                ConnectedSatellites: ConStats,
+                height:height
             }));
         });
     }
@@ -176,6 +186,15 @@ function checkCommand(actionString, socket) {
                         liveDevices[deviceUUID] = socket;
                         socket.deviceUUID = deviceUUID;
 
+                        if(liveDroneClients[socket.deviceUUID]) {
+                            liveDroneClients[socket.deviceUUID].forEach(e => {
+                                e.send(JSON.stringify({
+                                    type: "clientStatusUpdate",
+                                    onlineState: "Offline"
+                                }))
+                            });
+                        }
+
                     });
                     sendSocketOK(socket);
                 } else {
@@ -223,7 +242,7 @@ function checkCommand(actionString, socket) {
             break;
         case 'pos':
             if (socket.auth) {
-                if (!containsParams || paramList.length !== 4) {
+                if (!containsParams || paramList.length !== 5) {
                     sendSocketParamError(socket);
                     return;
                 }
@@ -231,13 +250,16 @@ function checkCommand(actionString, socket) {
                 const long = parseFloat(paramList[1]);
                 const alt = parseFloat(paramList[2]);
                 const ConSats = parseFloat(paramList[3]);
+                const height = parseFloat(paramList[4]);
                 device.updateStatusInfo(socket.deviceUUID, "lat", lat, () => {
                     device.updateStatusInfo(socket.deviceUUID, "long", long, () => {
                         device.updateStatusInfo(socket.deviceUUID, "alt", alt, () => {
-                        device.updateStatusInfo(socket.deviceUUID, "ConSats", ConSats, () => {
+                        device.updateStatusInfo(socket.deviceUUID, "connectedSatellites", ConSats, () => {
+                        device.updateStatusInfo(socket.deviceUUID, "height", height, () => {
                             sendSocketOK(socket);
 
-                            spreadPosToDroneClients(socket.deviceUUID, lat, long, alt,ConSats);
+                            spreadPosToDroneClients(socket.deviceUUID, lat, long, alt,ConSats,height);
+                        });
                         });
 
                     });
