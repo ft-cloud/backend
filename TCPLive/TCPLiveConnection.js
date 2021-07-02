@@ -190,7 +190,7 @@ function checkCommand(actionString, socket) {
                             liveDroneClients[socket.deviceUUID].forEach(e => {
                                 e.send(JSON.stringify({
                                     type: "clientStatusUpdate",
-                                    onlineState: "Offline"
+                                    onlineState: "Online"
                                 }))
                             });
                         }
