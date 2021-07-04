@@ -6,6 +6,17 @@ var device = require('../device/device');
 var liveDroneClients = require("../drone/droneFrontendConnection").liveDroneClientConnections;
 const liveDevices = [];
 
+function doQueue(socket) {
+
+    if (socket.queue && socket.queue.length > 0) {
+        checkCommand(socket.queue[0].toString(), socket, () => {
+            socket.queue.shift();
+            doQueue(socket);
+        })
+    }
+
+}
+
 module.exports.init = function init() {
 
     const server = new Net.Server();
@@ -16,6 +27,7 @@ module.exports.init = function init() {
     server.on('connection', function (socket) {
         console.log('A Device has Connected to the server. Waiting for authentication!');
         socket.lastMessage = Date.now();
+        socket.queue = [];
 
         socket.write('ft+ready\n');
 
@@ -29,10 +41,23 @@ module.exports.init = function init() {
 
         socket.interval = setInterval(checkConnection, 5000);
 
+
         socket.on('data', function (chunk) {
             socket.lastMessage = Date.now();
             console.log(`Data received from client: ${chunk.toString()}`);
-            checkIncomingMessage(chunk, socket);
+            chunk.toString().split("\n").forEach((message) => {
+                if(message.length>0) {
+                    if (checkIncomingMessage(message, socket)) {
+                      message = message.toString().slice(3, message.length);
+
+                        socket.queue.push(message);
+                    }
+                }
+
+
+            })
+            doQueue(socket);
+
         });
 
         // When the client requests to end the TCP connection with the server, the server
@@ -51,10 +76,8 @@ module.exports.init = function init() {
 };
 
 function checkIncomingMessage(message, socket) {
-    if (message.toString().startsWith("ft+") && message.toString().endsWith("\n")) {
-        console.log(message.toString().slice(3, message.length - 1));
-        checkCommand(message.toString().slice(3, message.length - 1), socket);
-
+    if (message.toString().startsWith("ft+")) {
+        return true;
     } else {
         console.log(`Unknown data received from client`);
         if (socket.json) {
@@ -62,6 +85,7 @@ function checkIncomingMessage(message, socket) {
         } else {
             socket.write("ft+error\n");
         }
+        return false;
     }
 
 }
@@ -97,7 +121,7 @@ function terminateConnection(socket) {
             device.setOnlineState(0, deviceUUID, () => {
             });
         });
-        if(liveDroneClients[socket.deviceUUID]) {
+        if (liveDroneClients[socket.deviceUUID]) {
             liveDroneClients[socket.deviceUUID].forEach(e => {
                 e.send(JSON.stringify({
                     type: "clientStatusUpdate",
@@ -122,7 +146,7 @@ function deleteDevice(socket) {
     }
 }
 
-function spreadPosToDroneClients(device, lat, long, alt,ConStats,height) {
+function spreadPosToDroneClients(device, lat, long, alt, ConStats, height) {
     console.log(liveDroneClients);
     console.log(liveDroneClients[device]);
     console.log(device);
@@ -134,7 +158,7 @@ function spreadPosToDroneClients(device, lat, long, alt,ConStats,height) {
                 long: long,
                 alt: alt,
                 ConnectedSatellites: ConStats,
-                height:height
+                height: height
             }));
         });
     }
@@ -155,7 +179,7 @@ function spreadBatteryVoltageToDroneClients(device, voltage, percentage) {
 
 }
 
-function checkCommand(actionString, socket) {
+function checkCommand(actionString, socket, mainCallback) {
     const command = actionString.split(/\W+/g)[0];
     const data = actionString.slice(actionString.indexOf(command) + command.length, actionString.length);
     let containsParams = false;
@@ -174,6 +198,7 @@ function checkCommand(actionString, socket) {
         case 'key':
             if (!containsParams || paramList.length !== 1) {
                 sendSocketParamError(socket);
+                mainCallback();
                 return;
             }
             console.log(paramList[0]);
@@ -181,12 +206,11 @@ function checkCommand(actionString, socket) {
                 if (callback) {
                     socket.auth = paramList[0];
                     device.getDeviceUUID(socket.auth, (deviceUUID) => {
-                        device.setOnlineState(1, deviceUUID, () => {
-                        });
+
                         liveDevices[deviceUUID] = socket;
                         socket.deviceUUID = deviceUUID;
 
-                        if(liveDroneClients[socket.deviceUUID]) {
+                        if (liveDroneClients[socket.deviceUUID]) {
                             liveDroneClients[socket.deviceUUID].forEach(e => {
                                 e.send(JSON.stringify({
                                     type: "clientStatusUpdate",
@@ -194,11 +218,15 @@ function checkCommand(actionString, socket) {
                                 }))
                             });
                         }
+                        device.setOnlineState(1, deviceUUID, () => {
+                            mainCallback();
+                        });
 
                     });
                     sendSocketOK(socket);
                 } else {
                     sendSocketAuthError(socket);
+                    mainCallback();
                 }
             });
             break;
@@ -209,11 +237,14 @@ function checkCommand(actionString, socket) {
             } else {
                 sendSocketAuthError(socket);
             }
+            mainCallback();
             break;
 
         case 'close':
             terminateConnection(socket);
             socket.auth = undefined;
+            socket.queue.clear();
+            mainCallback();
             break;
         case 'username':
             if (socket.auth) {
@@ -225,25 +256,32 @@ function checkCommand(actionString, socket) {
                             } else {
                                 socket.write("ft+username=" + callback.name + "\n");
                             }
+                            mainCallback();
                         });
+                    } else {
+                        mainCallback();
                     }
                 });
 
             } else {
                 sendSocketAuthError(socket);
+                mainCallback();
             }
             break;
         case 'debug':
             socket.write("ParamsList: " + paramList + " raw param: ft+" + actionString + "\n");
+            mainCallback();
             break;
         case 'jsonupgrade':
             socket.json = true;
             socket.write(`{"result":"switching ok"}`);
+            mainCallback();
             break;
         case 'pos':
             if (socket.auth) {
                 if (!containsParams || paramList.length !== 5) {
                     sendSocketParamError(socket);
+                    mainCallback();
                     return;
                 }
                 const lat = parseFloat(paramList[0]);
@@ -254,25 +292,27 @@ function checkCommand(actionString, socket) {
                 device.updateStatusInfo(socket.deviceUUID, "lat", lat, () => {
                     device.updateStatusInfo(socket.deviceUUID, "long", long, () => {
                         device.updateStatusInfo(socket.deviceUUID, "alt", alt, () => {
-                        device.updateStatusInfo(socket.deviceUUID, "connectedSatellites", ConSats, () => {
-                        device.updateStatusInfo(socket.deviceUUID, "height", height, () => {
-                            sendSocketOK(socket);
+                            device.updateStatusInfo(socket.deviceUUID, "connectedSatellites", ConSats, () => {
+                                device.updateStatusInfo(socket.deviceUUID, "height", height, () => {
+                                    sendSocketOK(socket);
+                                    spreadPosToDroneClients(socket.deviceUUID, lat, long, alt, ConSats, height);
+                                    mainCallback();
+                                });
+                            });
 
-                            spreadPosToDroneClients(socket.deviceUUID, lat, long, alt,ConSats,height);
                         });
-                        });
-
-                    });
                     });
                 });
             } else {
                 sendSocketAuthError(socket);
+                mainCallback();
             }
             break;
         case 'battery':
             if (socket.auth) {
                 if (!containsParams || paramList.length !== 2) {
                     sendSocketParamError(socket);
+                    mainCallback();
                     return;
                 }
                 const voltage = parseFloat(paramList[0]);
@@ -283,13 +323,14 @@ function checkCommand(actionString, socket) {
 
                         sendSocketOK(socket);
                         spreadBatteryVoltageToDroneClients(socket.deviceUUID, voltage, percentage);
-
+                        mainCallback();
                     });
                 });
 
 
             } else {
                 sendSocketAuthError(socket);
+                mainCallback();
             }
             break;
         default:
@@ -299,6 +340,7 @@ function checkCommand(actionString, socket) {
             } else {
                 socket.write("ft+error=cmu\n");
             }
+            mainCallback();
             break;
 
 
