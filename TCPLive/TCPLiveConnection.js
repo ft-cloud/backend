@@ -178,6 +178,19 @@ function spreadBatteryVoltageToDroneClients(device, voltage, percentage) {
     }
 
 }
+function spreadFlightModeToDroneClients(device, flightMode, emergencyMode) {
+
+    if (liveDroneClients[device] !== undefined) {
+        liveDroneClients[device].forEach(client => {
+            client.send(JSON.stringify({
+                type: "flightMode",
+                flightMode: flightMode,
+                emergencyMode: emergencyMode
+            }));
+        });
+    }
+
+}
 
 function checkCommand(actionString, socket, mainCallback) {
     const command = actionString.split(/\W+/g)[0];
@@ -323,6 +336,32 @@ function checkCommand(actionString, socket, mainCallback) {
 
                         sendSocketOK(socket);
                         spreadBatteryVoltageToDroneClients(socket.deviceUUID, voltage, percentage);
+                        mainCallback();
+                    });
+                });
+
+
+            } else {
+                sendSocketAuthError(socket);
+                mainCallback();
+            }
+            break;
+
+        case 'flightMode':
+            if (socket.auth) {
+                if (!containsParams || paramList.length !== 2) {
+                    sendSocketParamError(socket);
+                    mainCallback();
+                    return;
+                }
+                const flightMode = parseFloat(paramList[0]);
+                const emergencyMode = parseFloat(paramList[1]);
+
+                device.updateStatusInfo(socket.deviceUUID, "flightMode", flightMode, () => {
+                    device.updateStatusInfo(socket.deviceUUID, "EmergencyMode", emergencyMode, () => {
+
+                        sendSocketOK(socket);
+                        spreadFlightModeToDroneClients(socket.deviceUUID, flightMode, emergencyMode);
                         mainCallback();
                     });
                 });
