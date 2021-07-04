@@ -453,6 +453,7 @@ module.exports.init = function initDevicePaths() {
                                         if (result) {
                                             device.deleteAPIKey(req.query.deviceuuid, () => {
 
+                                                console.log("hätte klappen müssen")
                                                 if(TCPLiveConnection.liveDevices[req.query.deviceuuid]!==undefined) {
                                                     TCPLiveConnection.deleteDevice(TCPLiveConnection.liveDevices[req.query.deviceuuid]);
                                                 }

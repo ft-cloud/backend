@@ -318,13 +318,16 @@ var device = {
                    FROM deviceData
                    WHERE (uuid = ?)`;
         global.connection.query(sql, [device], function (err, result) {
+            console.log(result[0]);
             var statusInfoJson = JSON.parse(result[0].statusInfo);
+            console.log(value);
             statusInfoJson[String(key)] = String(value);
             var setSQL = `UPDATE deviceData
                           SET statusInfo = ?
                           WHERE uuid = ?`;
             console.log(JSON.stringify(statusInfoJson));
             global.connection.query(setSQL, [JSON.stringify(statusInfoJson), device], function (err, SETresult) {
+                console.log(SETresult);
                 callback();
 
 

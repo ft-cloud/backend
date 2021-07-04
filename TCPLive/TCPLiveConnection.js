@@ -36,10 +36,7 @@ module.exports.init = function init() {
                 return;
             }
             chunk.toString().split("\n").forEach(splitChung=> {
-                if(splitChung.length>0) {
-                    checkIncomingMessage(splitChung, socket);
-
-                }
+                checkIncomingMessage(splitChung, socket);
             })
         });
 
