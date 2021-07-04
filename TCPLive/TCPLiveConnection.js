@@ -32,12 +32,7 @@ module.exports.init = function init() {
         socket.on('data', function (chunk) {
             socket.lastMessage = Date.now();
             console.log(`Data received from client: ${chunk.toString()}`);
-            if(!chunk.toString().endsWith("\n")) {
-                return;
-            }
-            chunk.toString().split("\n").forEach(splitChung=> {
-                checkIncomingMessage(splitChung, socket);
-            })
+            checkIncomingMessage(chunk, socket);
         });
 
         // When the client requests to end the TCP connection with the server, the server
@@ -56,9 +51,9 @@ module.exports.init = function init() {
 };
 
 function checkIncomingMessage(message, socket) {
-    if (message.toString().startsWith("ft+")) {
-        console.log(message.toString().slice(3, message.length));
-        checkCommand(message.toString().slice(3, message.length), socket);
+    if (message.toString().startsWith("ft+") && message.toString().endsWith("\n")) {
+        console.log(message.toString().slice(3, message.length - 1));
+        checkCommand(message.toString().slice(3, message.length - 1), socket);
 
     } else {
         console.log(`Unknown data received from client`);
