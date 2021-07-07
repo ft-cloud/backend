@@ -354,8 +354,8 @@ function checkCommand(actionString, socket, mainCallback) {
                     mainCallback();
                     return;
                 }
-                const flightMode = parseFloat(paramList[0]);
-                const emergencyMode = parseFloat(paramList[1]);
+                const flightMode = (paramList[0]);
+                const emergencyMode = (paramList[1]);
 
                 device.updateStatusInfo(socket.deviceUUID, "flightMode", flightMode, () => {
                     device.updateStatusInfo(socket.deviceUUID, "EmergencyMode", emergencyMode, () => {
