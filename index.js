@@ -16,6 +16,7 @@ var game = require('./ledwall/game.js');
 var account = require('./account/accountHandler.js');
 var session = require('./account/sessionHandler.js');
 var deviceHandler = require('./device/deviceHandler.js');
+var droneHandler = require('./drone/droneHandler.js');
 var droneFrontendConnection = require('./drone/droneFrontendConnection.js');
 var device = require('./device/device');
 var searchHandler = require('./search/searchHandler');
@@ -64,7 +65,7 @@ app.use(cors());
 app.use(function(request, response, next) {
 
     if (!request.secure) {
-        return response.redirect("https://" + request.headers.host + request.url);
+       // return response.redirect("https://" + request.headers.host + request.url);
     }
 
     next();
@@ -74,8 +75,8 @@ app.get('/', (req, res) => {
     res.send('Ft-Cloud API V1.1');
 });
 
-app.get("/.well-known/acme-challenge/GInfZzaG2Zo3Yd9SCxaBALnWQASUCJ5bw5TdK37z3Qk", (req, res) => {
-    res.send("GInfZzaG2Zo3Yd9SCxaBALnWQASUCJ5bw5TdK37z3Qk.SBbeIJEYb1jSgPgjsFKBTdxIaLXTRcJ6-I_s5M-HHok");
+app.get("/.well-known/acme-challenge/N-v23MF1_P5HQ1ZK7jRd_P7-kSDIb5CySrblPDS8uoU", (req, res) => {
+    res.send("N-v23MF1_P5HQ1ZK7jRd_P7-kSDIb5CySrblPDS8uoU._NpiWigXQIAYq4g0tsCriRcoZOU6NMG3X4zt3LxAPZ0");
 });
 
 deviceHandler.init();
@@ -85,6 +86,7 @@ account.init();
 session.init();
 droneFrontendConnection.init();
 searchHandler.init();
+droneHandler.init();
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
