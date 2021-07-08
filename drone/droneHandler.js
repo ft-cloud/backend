@@ -83,6 +83,45 @@ module.exports.init = function initDronePaths() {
 
 
 
+    app.get('/drone/mission/getMissionData', (req, res) => {
+
+        if (req.query.session&&req.query.missionUUID) {
+            session.validateSession(req.query.session.toString(), (isValid) => {
+                if (isValid) {
+                    session.reactivateSession(req.query.session);
+                    session.getUserUUID(req.query.session.toString(), (uuid) => {
+                        if (uuid) {
+
+
+                            drone.getDroneMissionData(uuid,req.query.missionUUID.toString()).then(results => {
+
+                                res.send(JSON.stringify({
+                                    success: true,
+                                    mission: results
+                                }))
+
+                            })
+
+
+
+                        } else {
+                            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                        }
+
+                    });
+
+                } else {
+                    res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+                }
+            });
+        } else {
+            res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+        }
+
+    });
+
 
 
 }

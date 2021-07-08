@@ -1,4 +1,5 @@
 var uuid = require('uuid');
+const account = require("../account/account");
 
 
 var drone = {
@@ -25,6 +26,26 @@ var drone = {
             global.connection.query(sql, [user], function (err, result) {
 
                 resolve(result)
+            });
+
+
+        })
+    },
+
+
+    getDroneMissionData: function(user,missionUUID) {
+
+
+        return new Promise((resolve,reject) => {
+
+            const sql = `SELECT droneMission.uuid,droneMission.name,droneMission.data FROM droneMission,account WHERE ((droneMission.user = ?) OR ((account.admin = 1) AND (account.uuid = ?))) AND droneMission.uuid = ?`;
+            global.connection.query(sql, [user,user,missionUUID], function (err, result) {
+
+                if(result&&result[0]) {
+                    resolve(result[0])
+                }else{
+                    resolve({name:"Not found",error:true})
+                }
             });
 
 
