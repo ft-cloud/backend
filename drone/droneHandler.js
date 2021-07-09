@@ -122,6 +122,44 @@ module.exports.init = function initDronePaths() {
 
     });
 
+    app.post('/drone/mission/saveMissionData', (req, res) => {
+
+        if (req.body.session&&req.body.missionUUID&&req.body.data) {
+            session.validateSession(req.body.session.toString(), (isValid) => {
+                if (isValid) {
+                    session.reactivateSession(req.body.session);
+                    session.getUserUUID(req.body.session.toString(), (uuid) => {
+                        if (uuid) {
+
+
+                            drone.saveMissionData(uuid,req.body.missionUUID.toString(),req.body.data.toString()).then(results => {
+
+                                res.send(JSON.stringify({
+                                    success: true
+                                }))
+
+                            })
+
+
+
+                        } else {
+                            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                        }
+
+                    });
+
+                } else {
+                    res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+                }
+            });
+        } else {
+            res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+        }
+
+    });
+
 
 
 }

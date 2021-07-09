@@ -50,7 +50,20 @@ var drone = {
 
 
         })
-    }
+    },
+    saveMissionData: function(user,missionUUID,data) {
+
+
+        return new Promise((resolve,reject) => {
+            const sql = `UPDATE droneMission,account SET droneMission.data = ? WHERE ((droneMission.user = ?) OR ((account.admin = 1) AND (account.uuid = ?))) AND droneMission.uuid = ? `
+            global.connection.query(sql, [data,user,user,missionUUID], function (err, result) {
+
+              resolve();
+            });
+
+
+        })
+    },
 
 
 };
