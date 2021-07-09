@@ -46,10 +46,10 @@ var device = {
                          AND device = ?`;
 
             global.connection.query(sql, [useruuid, deviceuuid], function (err, result) {
-                admin.isUserAdmin(useruuid).then((isAdmin) =>{
-                    resolve((result && result[0])||isAdmin);
+                admin.isUserAdmin(useruuid).then((isAdmin) => {
+                    resolve((result && result[0]) || isAdmin);
 
-                })
+                });
 
             });
 
@@ -71,15 +71,30 @@ var device = {
     },
 
 
-    updateDeviceConfig: function (deviceuuid, config, callback) {
-        var sql = `UPDATE deviceData
-                   SET config = ?
-                   WHERE UUID = ?`;
-        global.connection.query(sql, [config, deviceuuid], function (err, result) {
+    updateDeviceConfig: function (deviceuuid, key, value) {
 
-            callback();
+        return new Promise(function (resolve, reject) {
 
-        });
+            var sql = `SELECT config
+                   FROM deviceData
+                   WHERE (uuid = ?)`;
+            global.connection.query(sql, [deviceuuid], function (err, result) {
+                var configJson = JSON.parse(result[0].config);
+
+                configJson[String(key)] = String(value);
+                var setSQL = `UPDATE deviceData
+                          SET config = ?
+                          WHERE uuid = ?`;
+                global.connection.query(setSQL, [JSON.stringify(configJson), deviceuuid], function (err, SETresult) {
+                    resolve();
+
+
+                });
+
+
+            });
+        })
+
     },
 
     deleteDeviceConnection: function (deviceuuid, callback) {
@@ -209,85 +224,82 @@ var device = {
     getUserSpecificDeviceInfo: function (useruuid, device, callback) {
 
 
+        var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
+                   FROM deviceData d,
+                        userDeviceAccess u
+                   WHERE (d.uuid = u.device)
+                     AND (d.uuid = ?)
+                     AND (u.user = ?)`;
+        global.connection.query(sql, [device, useruuid], function (err, result) {
 
 
+            if (result[0] === undefined) {
 
-                var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
-                           FROM deviceData d,
-                                userDeviceAccess u
-                           WHERE (d.uuid = u.device)
-                             AND (d.uuid = ?)
-                             AND (u.user = ?)`;
-                global.connection.query(sql, [device, useruuid], function (err, result) {
+                var sqlCheckExist = `SELECT name
+                                     FROM deviceData d
+                                     WHERE (d.uuid = ?)`;
+                global.connection.query(sqlCheckExist, [device, useruuid], function (err, exist) {
 
 
-                    if (result[0] === undefined) {
+                    if (exist[0] === undefined) {
+                        callback({
+                            error: true,
+                            errorMessage: "Device does not exist!"
+                        });
 
-                        var sqlCheckExist = `SELECT name FROM deviceData d WHERE(d.uuid = ?)`;
-                        global.connection.query(sqlCheckExist, [device, useruuid], function (err, exist) {
+                    } else {
+                        admin.isUserAdmin(useruuid).then((isAdmin) => {
+                            if (isAdmin) {
+                                var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
+                                           FROM deviceData d
+                                           WHERE (d.uuid = ?)`;
+                                global.connection.query(sql, [device], function (err, result) {
 
-
-                            if (exist[0] === undefined) {
-                                callback({
-                                    error: true,
-                                    errorMessage: "Device does not exist!"
-                                });
-
-                            }else{
-                                admin.isUserAdmin(useruuid).then( (isAdmin) => {
-                                    if (isAdmin) {
-                                        var sql = `SELECT name, uuid, config, deviceUUID, online, statusInfo
-                                                    FROM deviceData d
-                                                    WHERE (d.uuid = ?)`;
-                                        global.connection.query(sql, [device], function (err, result) {
-
-                                            if (result[0] === undefined) {
-                                                callback({
-                                                    error: true,
-                                                    errorMessage: "Device does not exist!"
-                                                });
-                                            } else {
-                                                callback({
-                                                    content: result[0],
-                                                    admin: true
-                                                });
-                                            }
-
-
-                                        });
-                                    }else{
+                                    if (result[0] === undefined) {
                                         callback({
                                             error: true,
-                                            errorMessage: "No Access!"
+                                            errorMessage: "Device does not exist!"
+                                        });
+                                    } else {
+                                        callback({
+                                            content: result[0],
+                                            admin: true
                                         });
                                     }
-                                })
 
 
+                                });
+                            } else {
+                                callback({
+                                    error: true,
+                                    errorMessage: "No Access!"
+                                });
                             }
-
                         });
 
-
-                    }else{
-                        callback({
-                            content: result[0],
-
-                        });
 
                     }
 
                 });
 
 
+            } else {
+                callback({
+                    content: result[0],
 
+                });
 
+            }
+
+        });
 
 
     },
 
-    changeDeviceName: function(deviceUUID,newName,callback) {
-        const sql = `UPDATE deviceData SET name = ? WHERE deviceData.uuid = ?;`
+    changeDeviceName: function (deviceUUID, newName, callback) {
+        const sql = `UPDATE deviceData
+                     SET name = ?
+                     WHERE deviceData.uuid = ?;`;
         global.connection.query(sql, [newName, deviceUUID], function (err, result) {
 
             callback(result);
@@ -336,16 +348,18 @@ var device = {
 
     },
 
-    getStatusInfo: function(device) {
-        return new Promise((resolve,reject) => {
+    getStatusInfo: function (device) {
+        return new Promise((resolve, reject) => {
 
-            var SQL = `SELECT statusInfo FROM deviceData WHERE (uuid = ?)`
-            global.connection.query(SQL, [device], function (err,result) {
-               resolve(result[0].statusInfo);
+            var SQL = `SELECT statusInfo
+                       FROM deviceData
+                       WHERE (uuid = ?)`;
+            global.connection.query(SQL, [device], function (err, result) {
+                resolve(result[0].statusInfo);
 
-            })
+            });
 
-        })
+        });
     }
 
 

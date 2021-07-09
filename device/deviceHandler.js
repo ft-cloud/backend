@@ -178,7 +178,7 @@ module.exports.init = function initDevicePaths() {
 
                                     device.getDeviceConfig(uuid, req.query.device.toString(), (devices) => {
                                         if (devices) {
-                                            res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
+                                            res.send(`{"success":true,"data":${devices}}`);
                                         } else {
                                             res.send(`{"success":false}`);
                                         }
@@ -500,23 +500,24 @@ module.exports.init = function initDevicePaths() {
     });
 
 
-    app.get('/device/saveConfig', (req, res) => {
+    app.post('/device/saveConfig', (req, res) => {
 
-        if (req.query.session && req.query.deviceuuid && req.query.params) {
-            session.validateSession(req.query.session.toString(), (isValid) => {
+        if (req.body.session && req.body.deviceuuid && req.body.param && req.body.value) {
+            session.validateSession(req.body.session.toString(), (isValid) => {
                 if (isValid) {
-                    session.reactivateSession(req.query.session);
-                    session.getUserUUID(req.query.session.toString(), (uuid) => {
+                    session.reactivateSession(req.body.session);
+                    session.getUserUUID(req.body.session.toString(), (uuid) => {
                         if (uuid) {
 
-                            device.checkUserDeviceAccessPermission(uuid,req.query.deviceuuid).then((result) => {
+                            device.checkUserDeviceAccessPermission(uuid,req.body.deviceuuid).then((result) => {
 
                                 if(result) {
-
-                                    device.updateDeviceConfig(req.query.deviceuuid, req.query.params, () => {
-                                        if (liveDeviceConnection.has(req.query.deviceuuid)) {
-                                            liveDeviceConnection.get(req.query.deviceuuid).send(packWSContent("configChange", `${req.query.params}`));
-                                        }
+                                    console.log(req.body.param)
+                                    console.log(req.body.value)
+                                    device.updateDeviceConfig(req.body.deviceuuid, req.body.param,req.body.value).then(value => {
+                                       // if (liveDeviceConnection.has(req.body.deviceuuid)) {
+                                        //    liveDeviceConnection.get(req.body.deviceuuid).send(packWSContent("configChange", `${req.body.params}`));
+                                       // }
                                         res.send('{\"success\":\"Updated Settings\"}');
 
                                     });
