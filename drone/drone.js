@@ -9,7 +9,7 @@ var drone = {
             const missionUUID = uuid.v4();
             const sql = `INSERT INTO droneMission
                          values ('${missionUUID}', ?, ?, ?)`;
-            global.connection.query(sql, [name, user,data!==undefined?data:'[]'], function (err, result) {
+            global.connection.query(sql, [name, user,data!==undefined?data:'{}'], function (err, result) {
 
                 resolve(missionUUID);
             });
