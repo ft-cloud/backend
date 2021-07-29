@@ -205,6 +205,48 @@ module.exports.init = function initDronePaths() {
 
     });
 
+    app.post('/drone/mission/renameDroneMission', (req, res) => {
+
+        if (req.body.session&&req.body.newMissionName&&req.body.missionUUID) {
+            if(req.body.newMissionName.toString().length<4&&req.body.newMissionName.toString().length>49) {
+                res.send(`{"success":false,"error":"String too long"}`);
+                return;
+            }
+            session.validateSession(req.body.session.toString(), (isValid) => {
+                if (isValid) {
+                    session.reactivateSession(req.body.session);
+                    session.getUserUUID(req.body.session.toString(), (uuid) => {
+                        if (uuid) {
+
+
+                            drone.renameMission(uuid,req.body.missionUUID.toString(),req.body.newMissionName.toString()).then(results => {
+
+                                res.send(JSON.stringify({
+                                    success: true
+                                }))
+
+                            })
+
+
+
+                        } else {
+                            res.send('{\"error\":\"No valid account!\",\"errorcode\":\"006\"}');
+
+                        }
+
+                    });
+
+                } else {
+                    res.send('{\"error\":\"No valid session!\",\"errorcode\":\"006\"}');
+
+                }
+            });
+        } else {
+            res.send('{\"error\":\"No valid inputs!\",\"errorcode\":\"002\"}');
+        }
+
+    });
+
 
 
 }

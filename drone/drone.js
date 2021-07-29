@@ -96,6 +96,21 @@ var drone = {
 
     },
 
+    renameMission: function (user, missionUUID, newName) {
+        return new Promise((resolve, reject) => {
+            const sql = `UPDATE droneMission,account
+                         SET droneMission.name = ?
+                         WHERE ((droneMission.user = ?) OR ((account.admin = 1) AND (account.uuid = ?)))
+                           AND droneMission.uuid = ? `;
+            global.connection.query(sql, [newName, user, user, missionUUID], function (err, result) {
+
+                resolve();
+            });
+
+
+        });
+
+    }
 
 };
 
