@@ -17,7 +17,7 @@ module.exports.init = function initDevicePaths() {
 
                     device.listAll((devices) => {
                         if (devices) {
-                            res.send(`{"success":true,"data":${devices}}`);
+                            res.send(`{"success":true,"data":${JSON.stringify(devices)}}`);
                         } else {
                             res.send(`{"success":false}`);
                         }
