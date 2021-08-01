@@ -46,7 +46,7 @@ var account = {
             global.connection.query(sql, [nameOrEmail, nameOrEmail, pw_hash], function (err, result) {
                 if (result && result[0]) {
 
-                    resolve(`{\"info\":\"loged in\",\"session\":\"${session.startsession(result[0].uuid)}\"}`);
+                    resolve(`{\"success\":\"loged in\",\"session\":\"${session.startsession(result[0].uuid)}\"}`);
 
                 } else {
                     resolve('{\"error\":\"email or password incorrect\",\"errorcode\":\"003\"}');
