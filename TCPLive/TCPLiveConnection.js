@@ -152,14 +152,16 @@ function spreadPosToDroneClients(device, lat, long, alt, ConStats, height) {
     console.log(device);
     if (liveDroneClients[device] !== undefined) {
         liveDroneClients[device].forEach(client => {
-            client.send(JSON.stringify({
-                type: "clientPos",
-                lat: lat,
-                long: long,
-                alt: alt,
-                ConnectedSatellites: ConStats,
-                height: height
-            }));
+            if(client.open) {
+                client.send(JSON.stringify({
+                    type: "clientPos",
+                    lat: lat,
+                    long: long,
+                    alt: alt,
+                    ConnectedSatellites: ConStats,
+                    height: height
+                }));
+            }
         });
     }
 
@@ -169,11 +171,13 @@ function spreadBatteryVoltageToDroneClients(device, voltage, percentage) {
 
     if (liveDroneClients[device] !== undefined) {
         liveDroneClients[device].forEach(client => {
-            client.send(JSON.stringify({
-                type: "voltage",
-                voltage: voltage,
-                percentage: percentage
-            }));
+            if(client.open) {
+                client.send(JSON.stringify({
+                    type: "voltage",
+                    voltage: voltage,
+                    percentage: percentage
+                }));
+            }
         });
     }
 
@@ -182,11 +186,13 @@ function spreadFlightModeToDroneClients(device, flightMode, emergencyMode) {
 
     if (liveDroneClients[device] !== undefined) {
         liveDroneClients[device].forEach(client => {
-            client.send(JSON.stringify({
-                type: "flightMode",
-                flightMode: flightMode,
-                emergencyMode: emergencyMode
-            }));
+            if(client.open) {
+                client.send(JSON.stringify({
+                    type: "flightMode",
+                    flightMode: flightMode,
+                    emergencyMode: emergencyMode
+                }));
+            }
         });
     }
 

@@ -7,7 +7,6 @@ var app = require("../index").app;
 const droneLiveClients = [];
 
 module.exports.init = function() {
-    console.log("test")
 
     app.ws('/device/droneLiveConnection', function (ws, req) {
 

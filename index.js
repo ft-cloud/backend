@@ -14,7 +14,8 @@ const drone = require('./TCPLive/TCPLiveConnection.js');
 
 var game = require('./ledwall/game.js');
 var account = require('./account/accountHandler.js');
-var session = require('./account/sessionHandler.js');
+var sessionHandler = require('./account/sessionHandler.js');
+var session = require('./account/session.js');
 var deviceHandler = require('./device/deviceHandler.js');
 var droneHandler = require('./drone/droneHandler.js');
 var droneFrontendConnection = require('./drone/droneFrontendConnection.js');
@@ -83,7 +84,7 @@ deviceHandler.init();
 drone.init();
 game.init();
 account.init();
-session.init();
+sessionHandler.init();
 droneFrontendConnection.init();
 searchHandler.init();
 droneHandler.init();
