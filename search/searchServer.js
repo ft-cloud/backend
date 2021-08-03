@@ -7,6 +7,7 @@ module.exports.app = app;
 const cors = require('cors');
 
 const searchHandler = require("./searchHandler");
+const mysql = require('mysql');
 
 global.connection = mysql.createConnection({
     host: '172.17.0.2',

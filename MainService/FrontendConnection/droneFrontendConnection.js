@@ -1,6 +1,6 @@
-var session = require('../../lib/account/session');
-var account = require('../../lib/account/account');
-var device = require('../../lib/device/device');
+var session = require('../session');
+var account = require('../account');
+var device = require('../device');
 const liveConnection = require("../TCPLive/TCPLiveConnection");
 const {app} = require("../index");
 
