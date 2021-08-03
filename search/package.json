@@ -1,0 +1,19 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "description": "Search Microservice",
+  "main": "searchServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node searchServer.js"
+  },
+  "author": "FT",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "https": "^1.0.0",
+    "mysql": "^2.18.1",
+    "uuid": "^8.3.2"
+  }
+}

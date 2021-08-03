@@ -1,5 +1,4 @@
 var uuid = require('uuid');
-const account = require("../account/account");
 
 
 var drone = {

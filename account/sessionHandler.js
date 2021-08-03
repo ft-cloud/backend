@@ -1,10 +1,10 @@
-var app = require('../index.js').app;
-var session = require('./session');
-var account = require('./account')
+const {app} = require('./accountServer.js');
+const session = require('./session');
+const account = require('./account')
 
 module.exports.init = function initSessionPaths() {
 
-    app.post('/auth/signup', (req, res) => {
+    app.post('/api/v1/auth/signup', (req, res) => {
 
         const error = validateSignUp(req.body.name, req.body.email, req.body.password);
         if (error) {
@@ -18,7 +18,7 @@ module.exports.init = function initSessionPaths() {
     });
 
 
-    app.post('/auth/signin', (req, res) => {
+    app.post('/api/v1/auth/signin', (req, res) => {
 
         if (req.body.eorn && req.body.password) {
             account.login(req.body.eorn.toString(), req.body.password.toString()).then((returnValue) => {
@@ -29,7 +29,7 @@ module.exports.init = function initSessionPaths() {
 
         }
     });
-    app.post('/auth/signout', (req, res) => {
+    app.post('/api/v1/auth/signout', (req, res) => {
         if (req.body.session) {
             //TODO check permission
             session.deleteSession(req.body.session.toString()).then((returnValue) => {
@@ -41,7 +41,7 @@ module.exports.init = function initSessionPaths() {
 
     });
 
-    app.get('/auth/validateSession', (req, res) => {
+    app.get('/api/v1/auth/validateSession', (req, res) => {
 
 
         if (req.query.session) {
@@ -60,7 +60,7 @@ module.exports.init = function initSessionPaths() {
         }
     });
 
-    app.post('/auth/addAPIKey', (req, res) => {
+    app.post('/api/v1/auth/addAPIKey', (req, res) => {
 
         if (req.body.session) {
             session.validateSession(req.body.session.toString(), (isValid) => {

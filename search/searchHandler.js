@@ -1,9 +1,9 @@
-var app = require('../index.js').app;
-var session = require('../account/session');
-var search = require('./search');
+const {app} = require('./searchServer');
+const session = require('./session');
+const search = require('./search');
 module.exports.init = function initSessionPaths() {
 
-    app.get('/search/doSearch', (req, res) => {
+    app.get('/api/v1/search/doSearch', (req, res) => {
 
         if (req.query.session && req.query.searchquery && req.query.searchquery.toString().length >= 2
 

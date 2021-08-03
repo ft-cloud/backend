@@ -1,14 +1,14 @@
-var session = require('../account/session');
-var account = require('../account/account');
-var device = require('../device/device');
+var session = require('../../lib/account/session');
+var account = require('../../lib/account/account');
+var device = require('../../lib/device/device');
 const liveConnection = require("../TCPLive/TCPLiveConnection");
-var app = require("../index").app;
+const {app} = require("../index");
 
 const droneLiveClients = [];
 
 module.exports.init = function() {
 
-    app.ws('/device/droneLiveConnection', function (ws, req) {
+    app.ws('/api/v1/device/droneLiveConnection', function (ws, req) {
 
         if (req.query.session&&req.query.device) {
             session.validateSession(req.query.session.toString(), (isValid) => {

@@ -1,11 +1,11 @@
-const session = require("../account/session");
+const session = require("./session");
 const drone = require("./drone");
-var app = require('../index.js').app;
+const {app} = require('./droneServer.js');
 
 module.exports.init = function initDronePaths() {
 
 
-    app.post('/drone/mission/createMission', (req, res) => {
+    app.post('/api/v1/drone/mission/createMission', (req, res) => {
 
         if (req.body.session&&req.body.name) {
             if(req.body.name.toString().length<4&&req.body.name.toString().length>49) {
@@ -43,7 +43,7 @@ module.exports.init = function initDronePaths() {
 
     });
 
-    app.get('/drone/mission/listMissions', (req, res) => {
+    app.get('/api/v1/drone/mission/listMissions', (req, res) => {
 
         if (req.query.session) {
             session.validateSession(req.query.session.toString(), (isValid) => {
@@ -83,7 +83,7 @@ module.exports.init = function initDronePaths() {
 
 
 
-    app.get('/drone/mission/getMissionData', (req, res) => {
+    app.get('/api/v1/drone/mission/getMissionData', (req, res) => {
 
         if (req.query.session&&req.query.missionUUID) {
             session.validateSession(req.query.session.toString(), (isValid) => {
@@ -122,7 +122,7 @@ module.exports.init = function initDronePaths() {
 
     });
 
-    app.get('/drone/mission/deleteDroneMission', (req, res) => {
+    app.get('/api/v1/drone/mission/deleteDroneMission', (req, res) => {
 
         if (req.query.session&&req.query.missionUUID) {
             session.validateSession(req.query.session.toString(), (isValid) => {
@@ -167,7 +167,7 @@ module.exports.init = function initDronePaths() {
 
     });
 
-    app.post('/drone/mission/saveMissionData', (req, res) => {
+    app.post('/api/v1/drone/mission/saveMissionData', (req, res) => {
 
         if (req.body.session&&req.body.missionUUID&&req.body.data) {
             session.validateSession(req.body.session.toString(), (isValid) => {
@@ -205,7 +205,7 @@ module.exports.init = function initDronePaths() {
 
     });
 
-    app.post('/drone/mission/renameDroneMission', (req, res) => {
+    app.post('/api/v1/drone/mission/renameDroneMission', (req, res) => {
 
         if (req.body.session&&req.body.newMissionName&&req.body.missionUUID) {
             if(req.body.newMissionName.toString().length<4&&req.body.newMissionName.toString().length>49) {

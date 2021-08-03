@@ -1,0 +1,40 @@
+version: '3'
+services:
+  account:
+    build: './account'
+    ports:
+      - "3000:3000"
+  device:
+    build: './device'
+    ports:
+      - "3001:3000"
+  drone:
+    build: './drone'
+    ports:
+      - "3002:3000"
+  ledwall:
+    build: './ledwall'
+    ports:
+      - "3003:3000"
+  restservice:
+    build: './MainService'
+    ports:
+      - "3004:3000"
+  search:
+    build: './search'
+    ports:
+      - "3005:3000"
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./public:/srv/www/static
+      - ./default.conf:/etc/ngnix/conf.d/default.conf
+    depends_on:
+      - account
+      - device
+      - drone
+      - ledwall
+      - restservice
+      - search

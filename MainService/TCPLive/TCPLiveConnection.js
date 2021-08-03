@@ -1,9 +1,9 @@
 const Net = require('net');
 const port = 8856;
-var session = require('../account/session');
-var account = require('../account/account');
-var device = require('../device/device');
-var liveDroneClients = require("../drone/droneFrontendConnection").liveDroneClientConnections;
+var session = require('../session');
+var account = require('../account');
+var device = require('../device');
+var liveDroneClients = require("../FrontendConnection/droneFrontendConnection").liveDroneClientConnections;
 const liveDevices = [];
 
 function doQueue(socket) {
