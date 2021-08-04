@@ -28,6 +28,7 @@ services:
     build: './MainService'
     ports:
       - "4004:3000"
+      - "8856:8856"
     depends_on:
       - database
   search:
