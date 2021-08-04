@@ -19,3 +19,6 @@
 [submodule "sessionLib"]
 	path = sessionLib
 	url = https://github.com/ft-cloud/sessionLib
+[submodule "public"]
+	path = public
+	url = https://github.com/ft-cloud/public
