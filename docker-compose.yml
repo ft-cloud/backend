@@ -43,6 +43,7 @@ services:
     volumes:
       - ./public:/usr/share/nginx/html
       - ./default.conf:/etc/nginx/conf.d/default.conf
+      #- /etc/letsencrypt/live/api.arnold-tim.de/: /etc/key/
     depends_on:
       - account
       - device
