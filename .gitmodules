@@ -1,0 +1,24 @@
+[submodule "account"]
+	path = account
+	url = https://github.com/ft-cloud/account
+[submodule "device"]
+	path = device
+	url = https://github.com/ft-cloud/device
+[submodule "drone"]
+	path = drone
+	url = https://github.com/ft-cloud/drone
+[submodule "ledwall"]
+	path = ledwall
+	url = https://github.com/ft-cloud/ledwall
+[submodule "MainService"]
+	path = MainService
+	url = https://github.com/ft-cloud/MainService
+[submodule "search"]
+	path = search
+	url = https://github.com/ft-cloud/search
+[submodule "sessionLib"]
+	path = sessionLib
+	url = https://github.com/ft-cloud/sessionLib
+[submodule "public"]
+	path = public
+	url = https://github.com/ft-cloud/public
