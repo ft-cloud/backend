@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="37560ffd-32ae-4d81-90e3-7e149da561ca" name="Default Changelist" comment="Added Info Section for devices to store status information about the device. For Example the drone will store the current position there.">
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/default.conf" beforeDir="false" afterPath="$PROJECT_DIR$/default.conf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,7 +168,7 @@
       <workItem from="1627991233206" duration="901000" />
       <workItem from="1628001587589" duration="13842000" />
       <workItem from="1628058140687" duration="2834000" />
-      <workItem from="1628060989057" duration="8698000" />
+      <workItem from="1628060989057" duration="11510000" />
     </task>
     <task id="LOCAL-00001" summary="Test Commit">
       <created>1613158592055</created>
