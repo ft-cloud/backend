@@ -1,42 +1,88 @@
 version: '3.7'
 services:
   account:
-    build: './account'
+    environment:
+      - mode
+    volumes:
+      - ./account:/src
+    build:
+      context: './account'
+      args:
+        - mode=${mode}
     ports:
       - "4000:3000"
     depends_on:
       - database
+
   device:
-    build: './device'
+    environment:
+      - mode
+    volumes:
+      - ./device:/src
+    build:
+      context: './device'
+      args:
+        - mode=${mode}
     ports:
       - "4001:3000"
     depends_on:
       - database
   drone:
-    build: './drone'
+    environment:
+      - mode
+    volumes:
+      - ./drone:/src
+    build:
+      context: './drone'
+      args:
+        - mode=${mode}
     ports:
       - "4002:3000"
     depends_on:
       - database
   ledwall:
-    build: './ledwall'
+    environment:
+      - mode
+    volumes:
+      - ./ledwall:/src
+    build:
+      context: './ledwall'
+      args:
+        - mode=${mode}
     ports:
       - "4003:3000"
     depends_on:
       - database
+
   restservice:
-    build: './MainService'
+    environment:
+      - mode
+    volumes:
+      - ./MainService:/src
+    build:
+      context: './MainService'
+      args:
+        - mode=${mode}
     ports:
       - "4004:3000"
       - "8856:8856"
     depends_on:
       - database
+
   search:
-    build: './search'
+    environment:
+      - mode
+    volumes:
+      - ./search:/src
+    build:
+      context: './search'
+      args:
+        - mode=${mode}
     ports:
       - "4005:3000"
     depends_on:
       - database
+
   nginx:
     image: nginx:latest
     ports:

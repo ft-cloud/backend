@@ -2,5 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/MainService" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/account" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/device" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/drone" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ledwall" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/public" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/search" vcs="Git" />
   </component>
 </project>
