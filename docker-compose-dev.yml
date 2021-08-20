@@ -1,19 +1,30 @@
 version: '3.7'
 services:
   account:
-
+    environment:
+      - mode=dev
+    volumes:
+      - ./account:/src
     build:
       context: './account'
+      args:
+        - mode=dev
     ports:
       - "4000:3000"
     depends_on:
       - database
     env_file:
       - ../secrets.env
-  device:
 
+  device:
+    environment:
+      - mode=dev
+    volumes:
+      - ./device:/src
     build:
       context: './device'
+      args:
+        - mode=dev
     ports:
       - "4001:3000"
     depends_on:
@@ -21,9 +32,14 @@ services:
     env_file:
       - ../secrets.env
   drone:
-
+    environment:
+      - mode=dev
+    volumes:
+      - ./drone:/src
     build:
       context: './drone'
+      args:
+        - mode=dev
     ports:
       - "4002:3000"
     depends_on:
@@ -31,8 +47,14 @@ services:
     env_file:
       - ../secrets.env
   ledwall:
+    environment:
+      - mode=dev
+    volumes:
+      - ./ledwall:/src
     build:
       context: './ledwall'
+      args:
+        - mode=dev
     ports:
       - "4003:3000"
     depends_on:
@@ -41,8 +63,14 @@ services:
       - ../secrets.env
 
   restservice:
+    environment:
+      - mode=dev
+    volumes:
+      - ./MainService:/src
     build:
       context: './MainService'
+      args:
+        - mode=dev
     ports:
       - "4004:3000"
       - "8856:8856"
@@ -52,8 +80,14 @@ services:
       - ../secrets.env
 
   search:
+    environment:
+      - mode=dev
+    volumes:
+      - ./search:/src
     build:
       context: './search'
+      args:
+        - mode=dev
     ports:
       - "4005:3000"
     depends_on:
