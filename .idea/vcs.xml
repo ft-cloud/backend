@@ -9,5 +9,6 @@
     <mapping directory="$PROJECT_DIR$/ledwall" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/public" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/search" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../backendRepo/sessionLib" vcs="Git" />
   </component>
 </project>
