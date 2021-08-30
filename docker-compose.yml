@@ -10,6 +10,7 @@ services:
       - database
     env_file:
       - ../secrets.env
+    restart: always
 
   device:
     build:
@@ -20,6 +21,7 @@ services:
       - database
     env_file:
       - ../secrets.env
+    restart: always
 
   drone:
     build:
@@ -30,6 +32,7 @@ services:
       - database
     env_file:
       - ../secrets.env
+    restart: always
 
   ledwall:
     build:
@@ -40,6 +43,7 @@ services:
       - database
     env_file:
       - ../secrets.env
+    restart: always
 
   restservice:
     build:
@@ -51,6 +55,7 @@ services:
       - database
     env_file:
       - ../secrets.env
+    restart: always
 
   search:
     build:
@@ -61,6 +66,7 @@ services:
       - database
     env_file:
       - ../secrets.env
+    restart: always
 
   nginx:
     image: nginx:latest

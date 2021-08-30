@@ -16,6 +16,7 @@ services:
     env_file:
       - ../secrets.env
 
+
   device:
     environment:
       - mode=dev
@@ -130,6 +131,7 @@ services:
       - PMA_ARBITRARY=1
     depends_on:
       - database
+
 
 
 volumes:
