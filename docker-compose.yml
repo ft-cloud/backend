@@ -105,8 +105,28 @@ services:
       - PMA_ARBITRARY=1
     depends_on:
       - database
+  mongo:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+    env_file:
+      - ../secrets.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodbdata:/data/db
+  adminmongo:
+    image: mrvautin/adminmongo:latest
+    environment:
+      PORT: 4321
+      HOST: 0.0.0.0
+      PASSWORD: Test
+    ports:
+      - "8081:4321"
 
 
 volumes:
   databaseVolume: {}
+  mongodbdata: {}
 
