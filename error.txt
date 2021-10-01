@@ -10,5 +10,5 @@ No write Permission 009
 No valid registration code 010
 No device Permission 011
 Session time is too long or too short 012
-No Google-Account Link 013
-No valid google token! 014
+Invalid Characters 013
+Username must contain at least 3 Characters 014
