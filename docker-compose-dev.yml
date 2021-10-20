@@ -150,6 +150,14 @@ services:
       PASSWORD: Test
     ports:
       - "8081:4321"
+  rtmp:
+    build: "./rtmp/stream"
+    ports:
+      - "1935:1935"
+      - "4006:4006"
+    container_name: rtmp_server
+    depends_on:
+      - account
 
 
 volumes:
