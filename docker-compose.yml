@@ -4,6 +4,7 @@ services:
   account:
     build:
       context: './account'
+    image: ftcloudaccount
     ports:
       - "4000:3000"
     depends_on:
@@ -15,6 +16,7 @@ services:
   device:
     build:
       context: './device'
+    image: ftclouddevice
     ports:
       - "4001:3000"
     depends_on:
@@ -26,6 +28,7 @@ services:
   drone:
     build:
       context: './drone'
+    image: ftclouddrone
     ports:
       - "4002:3000"
     depends_on:
@@ -37,6 +40,7 @@ services:
   ledwall:
     build:
       context: './ledwall'
+    image: ftcloudledwall
     ports:
       - "4003:3000"
     depends_on:
@@ -48,6 +52,7 @@ services:
   restservice:
     build:
       context: './MainService'
+    image: ftcloudmainservice
     ports:
       - "4004:3000"
       - "8856:8856"
@@ -60,6 +65,7 @@ services:
   search:
     build:
       context: './search'
+    image: ftcloudsearch
     ports:
       - "4005:3000"
     depends_on:
