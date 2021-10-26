@@ -12,3 +12,5 @@ No device Permission 011
 Session time is too long or too short 012
 Invalid Characters 013
 Username must contain at least 3 Characters 014
+Resource not found 015
+JSON can not be parsed 016
