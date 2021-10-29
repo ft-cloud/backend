@@ -142,14 +142,8 @@ services:
       - "27017:27017"
     volumes:
       - mongodbdata:/data/db
-  adminmongo:
-    image: mrvautin/adminmongo:latest
-    environment:
-      PORT: 4321
-      HOST: 0.0.0.0
-      PASSWORD: Test
-    ports:
-      - "8081:4321"
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all" ]
+
   rtmp:
     build: "./rtmp/stream"
     ports:
