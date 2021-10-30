@@ -46,7 +46,7 @@ services:
 
   restservice:
 
-    image: ftcloudmainservice
+    image: ghcr.io/ft-cloud/mainservice:master
     ports:
       - "4004:3000"
       - "8856:8856"
@@ -57,7 +57,7 @@ services:
     restart: always
 
   search:
-    image: ftcloudsearch
+    image: ghcr.io/ft-cloud/search:master
     ports:
       - "4005:3000"
     depends_on:
@@ -117,7 +117,7 @@ services:
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all" ]
 
   rtmp:
-    build: "./rtmp/stream"
+    build: "./rtmp"
     ports:
       - "1935:1935"
       - "4006:4006"

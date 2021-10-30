@@ -145,7 +145,7 @@ services:
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all" ]
 
   rtmp:
-    build: "./rtmp/stream"
+    build: "./rtmp"
     ports:
       - "1935:1935"
       - "4006:4006"
