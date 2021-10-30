@@ -2,9 +2,7 @@ version: '3.7'
 services:
 
   account:
-    build:
-      context: './account'
-    image: ftcloudaccount
+    image: ghcr.io/ft-cloud/account:master
     ports:
       - "4000:3000"
     depends_on:
@@ -14,9 +12,8 @@ services:
     restart: always
 
   device:
-    build:
-      context: './device'
-    image: ftclouddevice
+
+    image: ghcr.io/ft-cloud/device:master
     ports:
       - "4001:3000"
     depends_on:
@@ -26,9 +23,8 @@ services:
     restart: always
 
   drone:
-    build:
-      context: './drone'
-    image: ftclouddrone
+
+    image: ghcr.io/ft-cloud/drone:master
     ports:
       - "4002:3000"
     depends_on:
@@ -38,9 +34,8 @@ services:
     restart: always
 
   ledwall:
-    build:
-      context: './ledwall'
-    image: ftcloudledwall
+
+    image: ghcr.io/ft-cloud/ledwall:master
     ports:
       - "4003:3000"
     depends_on:
@@ -50,8 +45,7 @@ services:
     restart: always
 
   restservice:
-    build:
-      context: './MainService'
+
     image: ftcloudmainservice
     ports:
       - "4004:3000"
@@ -63,8 +57,6 @@ services:
     restart: always
 
   search:
-    build:
-      context: './search'
     image: ftcloudsearch
     ports:
       - "4005:3000"
