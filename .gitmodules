@@ -22,3 +22,6 @@
 [submodule "public"]
 	path = public
 	url = https://github.com/ft-cloud/public
+[submodule "usercontent"]
+	path = usercontent
+	url = https://github.com/ft-cloud/usercontent

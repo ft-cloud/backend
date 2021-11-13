@@ -12,7 +12,7 @@ services:
     ports:
       - "4000:3000"
     depends_on:
-      - database
+      - mongo
     env_file:
       - ../secrets.env
 
@@ -29,7 +29,7 @@ services:
     ports:
       - "4001:3000"
     depends_on:
-      - database
+      - mongo
     env_file:
       - ../secrets.env
   drone:
@@ -44,7 +44,7 @@ services:
     ports:
       - "4002:3000"
     depends_on:
-      - database
+      - mongo
     env_file:
       - ../secrets.env
   ledwall:
@@ -76,9 +76,10 @@ services:
       - "4004:3000"
       - "8856:8856"
     depends_on:
-      - database
+      - mongo
     env_file:
       - ../secrets.env
+
 
   search:
     environment:
@@ -95,6 +96,24 @@ services:
       - database
     env_file:
       - ../secrets.env
+
+  usercontent:
+    environment:
+      - mode=dev
+    volumes:
+      - ./usercontent:/src
+      - usercontentdata:/var/usercontent
+    build:
+      context: './usercontent'
+      args:
+        - mode=dev
+    ports:
+      - "4006:3000"
+    depends_on:
+      - mongo
+    env_file:
+      - ../secrets.env
+
 
   nginx:
     image: nginx:latest
@@ -148,7 +167,7 @@ services:
     build: "./rtmp"
     ports:
       - "1935:1935"
-      - "4006:4006"
+      - "4007:4006"
     container_name: rtmp_server
     depends_on:
       - account
@@ -157,4 +176,5 @@ services:
 volumes:
   databaseVolume: {}
   mongodbdata: {}
+  usercontentdata: {}
 
