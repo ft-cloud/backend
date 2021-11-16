@@ -47,21 +47,21 @@ services:
       - mongo
     env_file:
       - ../secrets.env
-  ledwall:
-    environment:
-      - mode=dev
-    volumes:
-      - ./ledwall:/src
-    build:
-      context: './ledwall'
-      args:
-        - mode=dev
-    ports:
-      - "4003:3000"
-    depends_on:
-      - database
-    env_file:
-      - ../secrets.env
+ # ledwall:
+   # environment:
+   #   - mode=dev
+   # volumes:
+   #   - ./ledwall:/src
+   # build:
+   #   context: './ledwall'
+   #   args:
+   #     - mode=dev
+   # ports:
+   #   - "4003:3000"
+   # depends_on:
+   #   - database
+  #  env_file:
+   #   - ../secrets.env
 
   restservice:
     environment:
@@ -81,28 +81,28 @@ services:
       - ../secrets.env
 
 
-  search:
-    environment:
-      - mode=dev
-    volumes:
-      - ./search:/src
-    build:
-      context: './search'
-      args:
-        - mode=dev
-    ports:
-      - "4005:3000"
-    depends_on:
-      - database
-    env_file:
-      - ../secrets.env
+ # search:
+  #  environment:
+  #    - mode=dev
+   # volumes:
+   #   - ./search:/src
+    #build:
+   #   context: './search'
+   #   args:
+    #    - mode=dev
+   # ports:
+   #   - "4005:3000"
+   # depends_on:
+   #   - database
+   # env_file:
+   #   - ../secrets.env
 
   usercontent:
     environment:
       - mode=dev
     volumes:
       - ./usercontent:/src
-      - usercontentdata:/var/usercontent
+      - usercontentdata:/usercontentdata
     build:
       context: './usercontent'
       args:
@@ -132,24 +132,24 @@ services:
       - ledwall
       - restservice
       - search
-  database:
-    image: mariadb:latest
-    ports:
-      - "3306:3306"
-    restart: always
-    env_file:
-      - ../secrets.env
-    volumes:
-      - databaseVolume:/var/lib/mysql
-  phpmyadmin:
-    image: phpmyadmin:latest
-    restart: always
-    ports:
-      - "8080:80"
-    environment:
-      - PMA_ARBITRARY=1
-    depends_on:
-      - database
+ # database:
+  #  image: mariadb:latest
+   # ports:
+   #   - "3306:3306"
+   # restart: always
+   # env_file:
+   #   - ../secrets.env
+   # volumes:
+    #  - databaseVolume:/var/lib/mysql
+  #phpmyadmin:
+  #  image: phpmyadmin:latest
+   # restart: always
+  #  ports:
+   #   - "8080:80"
+   # environment:
+   #   - PMA_ARBITRARY=1
+  #  depends_on:
+  #    - database
   mongo:
     image: mongo:latest
     restart: always

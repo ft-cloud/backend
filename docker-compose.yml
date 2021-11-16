@@ -35,16 +35,16 @@ services:
 
 
 
-  ledwall:
+  #ledwall:
 
-    image: ghcr.io/ft-cloud/ledwall:master
-    ports:
-      - "4003:3000"
-    depends_on:
-      - database
-    env_file:
-      - ../secrets.env
-    restart: always
+   # image: ghcr.io/ft-cloud/ledwall:master
+   # ports:
+   #   - "4003:3000"
+   # depends_on:
+   #   - database
+   # env_file:
+   #   - ../secrets.env
+   # restart: always
 
   restservice:
 
@@ -58,15 +58,15 @@ services:
       - ../secrets.env
     restart: always
 
-  search:
-    image: ghcr.io/ft-cloud/search:master
-    ports:
-      - "4005:3000"
-    depends_on:
-      - database
-    env_file:
-      - ../secrets.env
-    restart: always
+#  search:
+#    image: ghcr.io/ft-cloud/search:master
+#    ports:
+#      - "4005:3000"
+#    depends_on:
+#      - database
+#    env_file:
+#      - ../secrets.env
+ #   restart: always
 
   usercontent:
 
@@ -79,7 +79,7 @@ services:
       - ../secrets.env
     restart: always
     volumes:
-      - usercontentdata:/var/lib/usercontent
+      - usercontentdata:/usercontentdata
 
   nginx:
     image: nginx:latest
@@ -100,24 +100,24 @@ services:
       - restservice
       - search
 
-  database:
-    image: mariadb:latest
-    ports:
-      - "3306:3306"
-    restart: always
-    env_file:
-      - ../secrets.env
-    volumes:
-      - databaseVolume:/var/lib/mysql
-  phpmyadmin:
-    image: phpmyadmin:latest
-    restart: always
-    ports:
-      - "8080:80"
-    environment:
-      - PMA_ARBITRARY=1
-    depends_on:
-      - database
+  #database:
+   # image: mariadb:latest
+   # ports:
+   #   - "3306:3306"
+   # restart: always
+   # env_file:
+   #   - ../secrets.env
+   # volumes:
+   #   - databaseVolume:/var/lib/mysql
+  #phpmyadmin:
+  #  image: phpmyadmin:latest
+  #  restart: always
+  #  ports:
+  #    - "8080:80"
+  #  environment:
+  #    - PMA_ARBITRARY=1
+  #  depends_on:
+  #    - database
   mongo:
     image: mongo:latest
     restart: always
@@ -131,14 +131,14 @@ services:
       - mongodbdata:/data/db
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all" ]
 
-  rtmp:
-    build: "./rtmp"
-    ports:
-      - "1935:1935"
-      - "4007:4006"
-    container_name: rtmp_server
-    depends_on:
-      - account
+  #rtmp:
+  #  build: "./rtmp"
+  #  ports:
+  #    - "1935:1935"
+  #    - "4007:4006"
+  #  container_name: rtmp_server
+  #  depends_on:
+  #    - account
 
 
 
