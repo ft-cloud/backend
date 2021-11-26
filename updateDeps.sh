@@ -21,3 +21,7 @@ cd ..
 cd search
 npm update
 cd ..
+
+cd usercontent
+npm update
+cd ..
