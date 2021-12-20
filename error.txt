@@ -15,3 +15,4 @@ Username must contain at least 3 Characters 014
 Resource not found 015
 JSON can not be parsed 016
 Resource already exists 017
+TOTP already enabled 018
