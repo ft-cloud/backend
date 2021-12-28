@@ -17,3 +17,4 @@ JSON can not be parsed 016
 Resource already exists 017
 TOTP already enabled 018
 TOTP invalid 019
+Email not verified 020
