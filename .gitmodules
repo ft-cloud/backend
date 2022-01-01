@@ -25,3 +25,6 @@
 [submodule "usercontent"]
 	path = usercontent
 	url = https://github.com/ft-cloud/usercontent
+[submodule "alexa"]
+        path = alexa
+        url = https://github.com/ft-cloud/alexa
