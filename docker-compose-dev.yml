@@ -32,6 +32,23 @@ services:
       - mongo
     env_file:
       - ../secrets.env
+
+  alexa:
+    environment:
+      - mode=dev
+    volumes:
+      - ./alexa:/src
+    build:
+      context: './alexa'
+      args:
+        - mode=dev
+    ports:
+      - "4007:3000"
+    depends_on:
+      - mongo
+    env_file:
+      - ../secrets.env
+
   drone:
     environment:
       - mode=dev
@@ -163,14 +180,14 @@ services:
       - mongodbdata:/data/db
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rs0", "--bind_ip_all" ]
 
-  rtmp:
-    build: "./rtmp"
-    ports:
-      - "1935:1935"
-      - "4007:4006"
-    container_name: rtmp_server
-    depends_on:
-      - account
+ # rtmp:
+ #   build: "./rtmp"
+ #   ports:
+ #     - "1935:1935"
+ #     - "4007:4006"
+ #   container_name: rtmp_server
+ #   depends_on:
+ #     - account
 
 
 volumes:

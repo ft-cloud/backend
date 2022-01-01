@@ -81,6 +81,34 @@ services:
     volumes:
       - usercontentdata:/usercontentdata
 
+ # alexa:#
+
+  #  image: ghcr.io/ft-cloud/alexa:master
+  #  ports:
+  #    - "4007:3000"
+  #  depends_on:
+  #    - mongo
+  #  env_file:
+  #    - ../secrets.env
+  #  restart: always
+
+
+  alexa:
+    environment:
+      - mode=dev
+    volumes:
+      - ./alexa:/src
+    build:
+      context: './alexa'
+      args:
+        - mode=dev
+    ports:
+      - "4007:3000"
+    depends_on:
+      - mongo
+    env_file:
+      - ../secrets.env
+
   nginx:
     image: nginx:latest
     ports:

@@ -4,6 +4,7 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/MainService" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/account" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/alexa" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/device" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/drone" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ledwall" vcs="Git" />
