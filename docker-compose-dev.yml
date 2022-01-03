@@ -28,6 +28,7 @@ services:
         - mode=dev
     ports:
       - "4001:3000"
+      - "8846:8846"
     depends_on:
       - mongo
     env_file:
