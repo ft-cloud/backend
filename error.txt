@@ -18,3 +18,4 @@ Resource already exists 017
 TOTP already enabled 018
 TOTP invalid 019
 Email not verified 020
+Your account is not a developer account 021
