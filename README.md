@@ -20,3 +20,6 @@ Features:
  - Admin page
  - ...
  
+ 
+ API Dokumentation: [https://documenter.getpostman.com/view/15432915/TzJu9d4Q](https://documenter.getpostman.com/view/15432915/TzJu9d4Q)
+ 
