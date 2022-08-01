@@ -1,8 +1,22 @@
 # Backend
 
-[![Docker Image CI](https://github.com/ft-cloud/backend/actions/workflows/docker-image.yml/badge.svg)](https://github.com/LEDTisch/backend/actions/workflows/docker-image.yml)
-[![Node.js CI](https://github.com/ft-cloud/backend/actions/workflows/node.js.yml/badge.svg)](https://github.com/LEDTisch/backend/actions/workflows/node.js.yml)
-
-
 
 Backend for LedWall and Drone Projects
+It's structured in a microservice architecture based on nodejs with express.
+
+This API is used for a private smart home implementation.
+
+Features:
+ - User authentication
+ - User roles
+ - Device registration
+ - Device management
+ - Device live control
+ - Use frontend as a controller to play games on [led matrix](https://github.com/LEDTisch)
+ - Render games in the cloud and stream it to led matrix [link](https://github.com/LEDTisch/streamServer)
+ - Multiplayer games
+ - Plan missions for drones
+ - Getting live updates from the drone
+ - Admin page
+ - ...
+ 
